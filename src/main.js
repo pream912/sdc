@@ -20,9 +20,9 @@ new Vue({
           //const user = supabase.auth.user()
           store.commit('SET_LOGGED_IN', true)
           store.commit('SET_IS_ADMIN', true)
-          // store.dispatch('getVendors')
-          // store.dispatch('getCustomers')
-          // store.dispatch('getInvoices')
+          store.dispatch('getServices')
+          store.dispatch('getCustomers')
+          store.dispatch('getInvoices')
           // store.dispatch('getUsers')
       }
       if (event == 'SIGNED_OUT') {

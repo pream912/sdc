@@ -66,10 +66,24 @@
                     <v-card-text>
                         <v-row align-content="center" justify="center">
                             <v-col cols="12">
-                                <h3>Total sales</h3>
+                                <h3>Total Invoice</h3>
                             </v-col>
                             <v-col cols="12">
-                                <h1 class="green--text">${{totalSales}}</h1>
+                                <h1 class="green--text">  {{ filtInvs.length }}  </h1>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+            <v-col cols="4">
+                <v-card elevation="5">
+                    <v-card-text>
+                        <v-row align-content="center" justify="center">
+                            <v-col cols="12">
+                                <h3>Total Income</h3>
+                            </v-col>
+                            <v-col cols="12">
+                                <h1 class="green--text">₹{{totalSales}}</h1>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -83,49 +97,7 @@
                                 <h3>Pending payments</h3>
                             </v-col>
                             <v-col cols="12">
-                                <h1 class="red--text">${{pendingAmount}}</h1>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-            <v-col cols="4">
-                <v-card elevation="5">
-                    <v-card-text>
-                        <v-row>
-                            <v-col cols="12">
-                                <h3>Total purchase</h3>
-                            </v-col>
-                            <v-col cols="12">
-                                <h1 class="orange--text">${{totalPurchase}}</h1>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-            <v-col cols="4">
-                <v-card elevation="5">
-                    <v-card-text>
-                        <v-row>
-                            <v-col cols="12">
-                                <h3>Total profit</h3>
-                            </v-col>
-                            <v-col cols="12">
-                                <h1 class="green--text">${{profit}}</h1>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-            <v-col cols="4">
-                <v-card elevation="5">
-                    <v-card-text>
-                        <v-row>
-                            <v-col cols="12">
-                                <h3>Profit margin</h3>
-                            </v-col>
-                            <v-col cols="12">
-                                <h1 class="green--text">{{margin}}%</h1>
+                                <h1 class="red--text">₹{{pendingAmount}}</h1>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -156,7 +128,7 @@ export default {
         amount(items) {
             let amount = 0
             for(let i in items) {
-                amount = +amount + +items[i].sa
+                amount = +amount + +items[i].amount
             }  
             return amount
         },
@@ -288,7 +260,7 @@ export default {
     },
 
     mounted() {
-        //this.dateFilters()
+        this.dateFilters()
     }
 }
 </script>

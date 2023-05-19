@@ -60,7 +60,7 @@
                                     <v-btn @click="addCustomer" color="green">Add customer</v-btn>
                                 </v-col>
                                 <v-col cols="6">
-                                    <v-text-field v-model="amount" readonly outlined label="Amount"></v-text-field>
+                                    <v-text-field v-model="famount" readonly outlined label="Amount"></v-text-field>
                                 </v-col>
                                 <v-col cols="6">
                                     <v-text-field :rules="numRule" v-model="ramount" outlined label="Amount recieved"></v-text-field>
@@ -87,7 +87,7 @@
                                         readonly
                                         ></v-text-field>
                                         </template>
-                                        <v-date-picker v-model="idate"></v-date-picker>
+                                        <v-date-picker @input="dmenu = false" v-model="idate"></v-date-picker>
                                     </v-menu>
                                 </v-col>
                             </v-row>
@@ -102,16 +102,34 @@
                                             <v-card-text>
                                                 <v-row>
                                                     <v-col cols="3">
-                                                        <v-autocomplete label="Service name" outlined item-value="id" v-model="sid" item-text="name" :items="services"></v-autocomplete>
+                                                        <v-autocomplete @change="getRate" label="Service name" outlined item-value="id" v-model="sid" item-text="name" :items="services"></v-autocomplete>
                                                     </v-col>
                                                     <v-col cols="3">
                                                         <v-text-field outlined label="Description" v-model="description"></v-text-field>
                                                     </v-col>
                                                     <v-col cols="3">
-                                                        <v-text-field outlined label="Quantity" v-model="qt"></v-text-field>
+                                                        <v-text-field  outlined label="Quantity" v-model="qt"></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                        <v-text-field outlined label="Rate" v-model="rate"></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                    </v-col>
+                                                    <v-col cols="3">
+                                                        <v-text-field readonly outlined label="Amount" v-model="amount"></v-text-field>
                                                     </v-col>
                                                 </v-row>
                                             </v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn v-if="itemEditing" @click="updateItem" color="green">Update</v-btn>
+                                                <v-btn v-else @click="addItem" color="green">Ok</v-btn>
+                                                <v-btn @click="clearItemData" color="red">Cancel</v-btn>
+                                            </v-card-actions>
                                         </v-card>
                                     </v-dialog>
                                 </v-col>
@@ -148,7 +166,22 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                
+                                <v-spacer></v-spacer>
+                                <v-col cols="4">
+                                    <v-text-field readonly outlined label="Total amount" v-model="tamount"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-spacer></v-spacer>
+                                <v-col cols="4">
+                                    <v-text-field outlined label="Discount" v-model="discount"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-spacer></v-spacer>
+                                <v-col v-if="discount" cols="4">
+                                    <v-text-field outlined label="Final amount" v-model="famount"></v-text-field>
+                                </v-col>
                             </v-row>
                         </v-card-text>
                     </v-card>
@@ -180,10 +213,11 @@ export default {
         mop: null,
         items: [],
         headers: [
-            {text: 'Service', value: 'svc'},
+            {text: 'Service', value: 'name'},
             {text: 'Description', value: 'description'},
-            {text: 'Amount', value: 'amount'},
             {text: 'Quantity', value: 'qt'},
+            {text: 'Rate', value: 'rate'},
+            {text: 'Amount', value: 'amount'},
             {text: 'Actions', value: 'actions'},
         ],
         phone: null,
@@ -222,7 +256,7 @@ export default {
         description: null,
         qt: 1,
         rate: null,
-        
+        discount: null,
     }),
 
     methods: {
@@ -236,6 +270,9 @@ export default {
         },
         open() {
             this.dialog = true
+        },
+        getRate() {
+            this.rate = this.$store.getters.loadedService(this.sid).price
         },
         getName(cid) {
             return this.$store.getters.loadedCustomer(cid).name
@@ -251,6 +288,7 @@ export default {
             this.cid = inv.cid
             this.idate = date.toISOString().substr(0,10)
             this.ramount = this.checkAmount(inv.payments)
+            this.discount = inv.discount
             this.items = inv.items
         },
         printInvoice(inv) {
@@ -397,74 +435,20 @@ export default {
                     },
                 } 
             }
-
             pdfMake.createPdf(docDefinition).open()
         },  
 
         addItem() {
             const item = {
-                svc: this.svc,
-                vendor: this.vendor,
-                pa: this.pa,
-                sa: this.sa,
-                vps: this.vps,
-                vrno: this.vrno
+                name: this.getSname(this.sid),
+                sid: this.sid,
+                description: this.description,
+                qt: this.qt,
+                rate: this.rate,
+                amount: this.amount,
             }
             if(this.itemValidate) {
-                if(this.svc == 'Air tickets') {
-                    this.items.push({
-                        ...item,
-                        tradate: this.tradate,
-                        redate: this.redate,
-                        pnr: this.pnr,
-                        from: this.from,
-                        passname: this.passname,
-                        to: this.to
-                    })
-                }
-                if(this.svc == 'Bus tickets') {
-                    this.items.push({
-                        ...item,
-                        tradate: this.tradate,
-                        redate: this.redate,
-                        pnr: this.pnr,
-                        passname: this.passname,
-                        from: this.from,
-                        to: this.to
-                    })
-                }
-                if(this.svc == 'Documents') {
-                    this.items.push({
-                        ...item,
-                        category: this.category
-                    })
-                }
-                if(this.svc == 'Visa') {
-                    this.items.push({
-                        ...item,
-                        country: this.country,
-                        passname: this.passname
-                    })
-                }
-                if(this.svc == 'Hotel booking') {
-                    this.items.push({
-                        ...item,
-                        fdate: this.fdate,
-                        tdate: this.tdate
-                    })
-                }
-                if(this.svc == 'Inbound tour') {
-                    this.items.push({
-                        ...item,
-                        attraction: this.attraction
-                    })
-                }
-                if(this.svc == 'Outbound tour') {
-                    this.items.push({
-                        ...item,
-                        country: this.country
-                    })
-                }
+                this.items.push(item)
                 this.clearItemData()
             } else {
                 this.snack = true
@@ -475,20 +459,10 @@ export default {
 
         editItem(item) {
             this.itemIdex = this.items.indexOf(item)
-            this.svc = item.svc
-            this.vendor = item.vendor
-            this.pa = item.pa
-            this.sa = item.sa
-            this.tradate = item.tradate
-            this.pnr = item.pnr
-            this.passname = item.passname
-            this.from = item.from
-            this.to = item.to
-            this.country = item.country
-            this.fdate = item.fdate
-            this.tdate = item.tdate
-            this.attraction = item.attraction
-            this.vps = item.vps
+            this.sid = item.sid
+            this.qt = item.qt
+            this.description = item.description
+            this.rate = item.rate
             this.itemEditing = true
             this.dialog1 = true
         },
@@ -496,67 +470,15 @@ export default {
         updateItem() {
             this.items.splice(this.itemIdex, 1)
             const item = {
-                svc: this.svc,
-                vendor: this.vendor,
-                pa: this.pa,
-                sa: this.sa,
-                vps: this.vps
+                name: this.getSname(this.sid),
+                sid: this.sid,
+                description: this.description,
+                qt: this.qt,
+                rate: this.rate,
+                amount: this.amount,
             }
             if(this.itemValidate) {
-                if(this.svc == 'Air tickets') {
-                    this.items.push({
-                        ...item,
-                        tradate: this.tradate,
-                        redate: this.redate,
-                        pnr: this.pnr,
-                        from: this.from,
-                        to: this.to,
-                        passname: this.passname
-                    })
-                }
-                if(this.svc == 'Bus tickets') {
-                    this.items.push({
-                        ...item,
-                        tradate: this.tradate,
-                        redate: this.redate,
-                        pnr: this.pnr,
-                        from: this.from,
-                        to: this.to,
-                        passname: this.passname
-                    })
-                }
-                if(this.svc == 'Visa') {
-                    this.items.push({
-                        ...item,
-                        country: this.country,
-                        passname: this.passname
-                    })
-                }
-                if(this.svc == 'Documents') {
-                    this.items.push({
-                        ...item,
-                        category: this.category
-                    })
-                }
-                if(this.svc == 'Hotel booking') {
-                    this.items.push({
-                        ...item,
-                        fdate: this.fdate,
-                        tdate: this.tdate
-                    })
-                }
-                if(this.svc == 'Inbound tour') {
-                    this.items.push({
-                        ...item,
-                        attraction: this.attraction
-                    })
-                }
-                if(this.svc == 'Outbound tour') {
-                    this.items.push({
-                        ...item,
-                        country: this.country
-                    })
-                }
+                this.items.push(item)
                 this.clearItemData()
             } else {
                 this.snack = true
@@ -571,37 +493,13 @@ export default {
         },
 
         clearItemData() {
-            this.svc = null
-            this.vendor = null
-            this.pa = null
-            this.sa = null
-            this.tradate = null
-            this.pnr = null
-            this.from = null
-            this.to = null
-            this.country = null
-            this.fdate = null
-            this.tdate = null
-            this.attraction = null
-            this.passname = null
-            this.vps = null
+            this.sid = null
+            this.qt = 1
+            this.description = null
+            this.rate = null
             this.itemEditing = false
             this.itemIdex = null
             this.dialog1 = false
-        },
-
-        async checkPNR(pnr) {
-            let invs = this.invs
-            for(let i in invs) {
-                let dat = invs[i].items.find(i => i.pnr == pnr)
-                if(dat){
-                    this.$store.dispatch('createAlert',{type: 'error', message: 'PNR already exists!!!'})
-                    this.snack = true
-                    this.scolor = 'error'
-                    this.stext = 'PNR already exists!!!'
-                    this.pnr = null
-                }
-            }
         },
 
         async saveInv() {
@@ -614,9 +512,10 @@ export default {
             const inv = {
                 cid: this.cid,
                 idate: new Date(this.idate).getTime(),
-                amount: this.amount,
+                amount: this.famount,
                 createdby: this.user.id,
                 payments: payment,
+                discount: this.discount,
                 items: this.items
             }
             const { data, error } = await supabase.from('invoices').insert([
@@ -629,6 +528,7 @@ export default {
             }
             if(error) {
                 this.$store.dispatch('createAlert',{type: 'error', message: error.message})
+                console.log(error);
                 this.clear()
             }
             // .then((res) => {
@@ -752,6 +652,10 @@ export default {
         alert () {
             return this.$store.getters.loadedAlert
         },
+
+        amount () {
+            return +this.qt * +this.rate
+        },
         
         invs() {
             return this.$store.getters.loadedInvoices
@@ -777,13 +681,17 @@ export default {
             return filtSer
         },
 
-        amount() {
+        tamount() {
             let amount = 0
             let items = this.items
             for(let i in items) {
-                amount = +amount + +items[i].sa
+                amount = +amount + +items[i].amount
             }  
             return amount
+        },
+
+        famount() {
+            return +this.tamount - +this.discount
         }
     },
 

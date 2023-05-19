@@ -63,13 +63,12 @@
                     <template v-slot:[`item.idate`]="{ item }">
                         {{toLocalDate(item.idate)}}
                     </template>
+                    <template v-slot:[`item.regno`]="{ item }">
+                        {{getRegno(item.cid)}}
+                    </template>
                     <template v-slot:[`item.ramount`]="{ item }">
                         <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
                         <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
-                    </template>
-                    <template v-slot:[`item.vamount`]="{ item }">
-                        <div v-if="vBalance(item) != 0" class="red--text">{{vBalance(item)}}</div>
-                        <div v-else class="green--text">{{vBalance(item)}}</div>
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-btn x-small @click="addPayment(item)" v-if="balAmount(item.payments, item.amount) != 0"  color="green">Add payment</v-btn>
@@ -107,7 +106,7 @@
                             <v-text-field 
                             outlined
                             v-model="idate"
-                            label="Invoice date"
+                            label="Date"
                             v-on="on"
                             readonly
                             ></v-text-field>
@@ -165,14 +164,11 @@ export default {
         mop: null,
         items: [],
         invheader: [
-            {text: 'Invoice no.', value: 'id'},
-            {text: 'PNR', value: 'pnr'},
-            {text: 'Passanger name', value: 'passname'},
-            {text: 'Customer name', value: 'cusname'},
+            {text: 'Invoice no.', value: 'invno'},
+            {text: 'Reg no.', value: 'regno'},
             {text: 'Invoice date.', value: 'idate'},
             {text: 'Invoice amount($)', value: 'amount'},
             {text: 'Balance due($)', value: 'ramount'},
-            {text: 'Vendor due($)', value: 'vamount'},
             {text: 'Actions', value: 'actions'},
         ],
         frange: null,
@@ -360,30 +356,34 @@ export default {
             }
             this.prepItems()
         },
+        getRegno(cid) {
+            return this.$store.getters.loadedCustomer(cid).regno
+        },
         prepItems() {
-            let fitems = []
-            let items = this.filtInvs
-            for(let i in items) {
-                let pnr = ''
-                let passname = ''
-                let cusname = this.getName(items[i].cid)
-                let list = items[i].items
-                for(let j in list) {
-                    if(list[j].pnr) {
-                        pnr = pnr + list[j].pnr + ' '
-                    }
-                    if(list[j].passname) {
-                        passname = passname + list[j].passname + ''
-                    }
-                }
-                fitems.push({
-                    ...items[i],
-                    pnr: pnr,
-                    cusname: cusname,
-                    passname: passname
-                })
-            }
-            this.fitems = fitems
+            // let fitems = []
+            // let items = this.filtInvs
+            // for(let i in items) {
+            //     let pnr = ''
+            //     let passname = ''
+            //     let cusname = this.getName(items[i].cid)
+            //     let list = items[i].items
+            //     for(let j in list) {
+            //         if(list[j].pnr) {
+            //             pnr = pnr + list[j].pnr + ' '
+            //         }
+            //         if(list[j].passname) {
+            //             passname = passname + list[j].passname + ''
+            //         }
+            //     }
+            //     fitems.push({
+            //         ...items[i],
+            //         pnr: pnr,
+            //         cusname: cusname,
+            //         passname: passname
+            //     })
+            // }
+            this.fitems = this.filtInvs
+            console.log(this.filtInvs);
         }
     },
 
