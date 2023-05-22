@@ -297,7 +297,7 @@ export default {
                 var pdfFonts = require('pdfmake/build/vfs_fonts.js')
                 pdfMake.vfs = pdfFonts.pdfMake.vfs
             }
-            const logo = null
+            const logo = 'data:image/png;base64,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'
 
             let customer = this.$store.getters.loadedCustomer(inv.cid)
 
@@ -309,37 +309,9 @@ export default {
             let particulars = ''
             let bamount = 0
             for(let i in items) {
-                if(items[i].svc == 'Air tickets') {
-                    if(items[i].redate) {
-                        particulars = `${items[i].svc} (${items[i].from} - ${items[i].to}) (Date: ${items[i].tradate}) (Return: ${items[i].redate}) (PNR: ${items[i].pnr}) (Name: ${items[i].passname})`
-                    } else {
-                        particulars = `${items[i].svc} (${items[i].from} - ${items[i].to}) (Date: ${items[i].tradate}) (PNR: ${items[i].pnr}) (Name: ${items[i].passname})`
-                    }
-                }
-                if(items[i].svc == 'Bus tickets') {
-                    if(items[i].redate) {
-                        particulars = `${items[i].svc} (${items[i].from} - ${items[i].to}) (Date: ${items[i].tradate}) (Return: ${items[i].redate}) (PNR: ${items[i].pnr}) (Name: ${items[i].passname})`
-                    } else {
-                        particulars = `${items[i].svc} (${items[i].from} - ${items[i].to}) (Date: ${items[i].tradate}) (PNR: ${items[i].pnr}) (Name: ${items[i].passname})`
-                    }
-                }
-                if(items[i].svc == 'Documents') {
-                    particulars = `${items[i].svc} (${items[i].category})`
-                }
-                if(items[i].svc == 'Visa') {
-                    particulars = `${items[i].svc} (${items[i].country}) (Name: ${items[i].passname})`
-                }
-                if(items[i].svc == 'Hotel booking') {
-                    particulars = `${items[i].svc} (${items[i].fdate} to ${items[i].tdate})`
-                } 
-                if(items[i].svc == 'Inbound tour'){
-                    particulars = `${items[i].svc} (${items[i].attraction})`
-                }
-                if(items[i].svc == 'Outbound tour'){
-                    particulars = `${items[i].svc} (${items[i].country})`
-                }
+                
                 billContent.push([{text: +i + 1, alignment: 'center', fontSize: 10}, {text: particulars, fontSize: 10, alignment: 'left'}, {text: items[i].sa, alignment: 'right', fontSize: 10}])
-                tamount = +tamount + +items[i].sa
+                tamount = +tamount + +items[i].amount
             }
             bamount = +tamount - +this.checkAmount(payments)
             billContent.push(
@@ -355,20 +327,37 @@ export default {
             [{},{text: 'Balance amount (A - B)', alignment: 'right', fontSize: 10, bold: true}, {text: bamount, alignment: 'right', fontSize: 10, bold: true}])
             let content = [
                 {
-                    columns: [{width: 60, image: logo, fit: [150,150]},
+                    columns: [{width: 30, image: logo, fit: [80,80]},
                     {stack: [
-                        'Thanjai Tours & Travels Pte ltd,',
-                        'No. 84 Dunlop Street,',
-                        'Singapore 209411.',
-                        'Tel: 63415565',
-                        'WhatsApp: 86565786',
-                        'Email: info@thanjaitours.com',
-                        'TA No.: 02122'
-                    ], alignment: 'right', fontSize:10
+                        'SMILE DENTAL CARE',
+                        'Dr. Ranjith Chandar B.D.S, F.I.L.D(Malaysia),',
+                        'Certified Root Canal Specialist',
+                        'Regd No. - 11850',
+                    ], alignment: 'right', fontSize:8, bold: true
                     },]
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]
+                    columns: [{},
+                    {stack: [
+                        ' ',
+                        'HQ: BASEMENT, JOSHI & JOSHI COMPLEX, KAILASH NAGAR, KATTUR, TRICHY-620019, TN, INDIA',
+                        'SRI VIDHYA MEDICALS, GANDHI SALAI, SRIRANGAM, TRICHY, TN, INDIA.',
+                        '+91 9489364226 / 0431 2434898 (Srirangam)',
+                        '+91 9791765077 / +91 9092465077 / +91 431 2532277',
+                    ], alignment: 'right', fontSize:7
+                    },]
+                },
+                {
+                    columns: [{},
+                    {stack: [
+                        'support@smiledentalcaretrichy.com',
+                        'www.smiledentalcaretrichy.com',
+                        ' ',
+                    ], alignment: 'right', fontSize:7, bold: true
+                    },]
+                },
+                {
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, color: '#f03333' } ]
                 },
                 {
                     columns: [{width: '100%', text: 'INVOICE', bold: true, alignment: 'center', margin: 5}]
