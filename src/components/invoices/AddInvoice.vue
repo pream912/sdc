@@ -274,6 +274,9 @@ export default {
         getRate() {
             this.rate = this.$store.getters.loadedService(this.sid).price
         },
+        retRate(sid) {
+            return this.$store.getters.loadedService(sid).price
+        },
         getName(cid) {
             return this.$store.getters.loadedCustomer(cid).name
         },
@@ -302,29 +305,72 @@ export default {
             let customer = this.$store.getters.loadedCustomer(inv.cid)
 
             let billContent = []
-            billContent.push([{text: 'Sno.', alignment: 'center', fontSize: 10, bold: true}, {text: 'Particulars', fontSize: 10, alignment: 'left', bold: true}, {text: 'Amount($)', alignment: 'center', bold: true, fontSize: 10}])
+            let totalContent = []
+            let paymentDetails = []
+
+            billContent.push([
+                {text: 'S.No.', alignment: 'center', bold: true, fontSize: 7}, 
+                {text: 'Treatment', alignment: 'center', bold: true, fontSize: 7}, 
+                {text: 'Description', alignment: 'center', bold: true, fontSize: 7},
+                {text: 'Quantity', alignment: 'center', bold: true, fontSize: 7},
+                {text: 'Rate', alignment: 'right', bold: true, fontSize: 7},
+                {text: 'Amount', alignment: 'right', bold: true, fontSize: 7},
+            ])
             let items = inv.items
             let payments = inv.payments
             let tamount = 0
-            let particulars = ''
             let bamount = 0
+            let tramount = 0
+
             for(let i in items) {
-                
-                billContent.push([{text: +i + 1, alignment: 'center', fontSize: 10}, {text: particulars, fontSize: 10, alignment: 'left'}, {text: items[i].sa, alignment: 'right', fontSize: 10}])
+                billContent.push([
+                    {text: +i + 1, alignment: 'center', fontSize: 7}, 
+                    {text: this.getSname(items[i].sid), alignment: 'left', fontSize: 7}, 
+                    {text: items[i].description, alignment: 'left', fontSize: 7}, 
+                    {text: items[i].qt, alignment: 'center', fontSize: 7},
+                    {text: this.decimalRound(this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
+                    {text: this.decimalRound(+items[i].qt * +this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
+                ])
                 tamount = +tamount + +items[i].amount
             }
-            bamount = +tamount - +this.checkAmount(payments)
-            billContent.push(
-                [{},{text: 'Total amount(A):', alignment: 'right', fontSize: 10, bold: true}, {text: tamount, alignment: 'right', fontSize: 10, bold: true}],
-                [{},{text: 'Amount recieved on', alignment: 'right', fontSize: 10, bold: true}, {}]
+            tramount = +tamount - +inv.discount
+            bamount = +tamount - +inv.discount - +this.checkAmount(payments)
+
+            totalContent.push(
+                [{},{},{},{},
+                    {text:'Gross Total', alignment: 'right', fontSize: 7, bold: true},
+                    {text:`₹${this.decimalRound(+tamount)}`, alignment: 'right', fontSize: 7, bold: true}
+                ],
+                [{},{},{},{},
+                    {text:'Discount', alignment: 'right', fontSize: 7, bold: true},
+                    {text:`₹${this.decimalRound(+inv.discount)}`, alignment: 'right', fontSize: 7, bold: true}
+                ],
+                [{},{},{},{},
+                    {text:'Total Receivable', alignment: 'right', fontSize: 7, bold: true},
+                    {text:`₹${this.decimalRound(+tramount)}`, alignment: 'right', fontSize: 7, bold: true}
+                ],
+                [{},{},{},{},
+                    {text:'Paid', alignment: 'right', fontSize: 7, bold: true},
+                    {text:`₹${this.decimalRound(+this.checkAmount(payments))}`, alignment: 'right', fontSize: 7, bold: true}
+                ],
+                [{},{},{},{},
+                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#f03333'},
+                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#f03333'}
+                ],
+            )
+
+            paymentDetails.push(
+                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true},{},{}],
+                [{},{},{}],
+                [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
             for(let i in payments) {
-                if(+payments[i].ramount != 0) {
-                    billContent.push([{},{text: payments[i].date, alignment: 'right', fontSize: 10}, {text: payments[i].ramount, alignment: 'right', fontSize: 10}])
-                }
+                console.log(payments[i]);
+                paymentDetails.push([
+                    {text: `${this.toLocalDate(payments[i].date)} - ${this.decimalRound(payments[i].ramount)} by ${payments[i].mop}`, alignment: 'left', fontSize: 7},{},{}
+                ])
             }
-            billContent.push([{},{text: 'Total amount recieved(B):', alignment: 'right', fontSize: 10, bold: true}, {text: this.checkAmount(payments), alignment: 'right', fontSize: 10, bold: true}],
-            [{},{text: 'Balance amount (A - B)', alignment: 'right', fontSize: 10, bold: true}, {text: bamount, alignment: 'right', fontSize: 10, bold: true}])
+
             let content = [
                 {
                     columns: [{width: 30, image: logo, fit: [80,80]},
@@ -338,13 +384,15 @@ export default {
                 },
                 {
                     columns: [{},
-                    {stack: [
+                    {
+                        width: 280,
+                        stack: [
                         ' ',
                         'HQ: BASEMENT, JOSHI & JOSHI COMPLEX, KAILASH NAGAR, KATTUR, TRICHY-620019, TN, INDIA',
                         'SRI VIDHYA MEDICALS, GANDHI SALAI, SRIRANGAM, TRICHY, TN, INDIA.',
                         '+91 9489364226 / 0431 2434898 (Srirangam)',
                         '+91 9791765077 / +91 9092465077 / +91 431 2532277',
-                    ], alignment: 'right', fontSize:7
+                    ], alignment: 'right', fontSize:6
                     },]
                 },
                 {
@@ -356,68 +404,90 @@ export default {
                     ], alignment: 'right', fontSize:7, bold: true
                     },]
                 },
+                
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, color: '#f03333' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 3, color: '#f03333' } ]
                 },
                 {
-                    columns: [{width: '100%', text: 'INVOICE', bold: true, alignment: 'center', margin: 5}]
+                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#f03333', bold: true, alignment: 'center', margin: 5}]
                 },
                 {
-                    layout: 'noBorders',
-                    table: {
-                        widths: [100, '*'],
-                        body: [
-                            [{text: 'Customer name:', fontSize: 10}, {text: customer.name, fontSize: 10}],
-                            [{text: 'Address', fontSize: 10}, {text: customer.address, fontSize: 10}],
-                            [{text: 'Phone', fontSize: 10}, {text: customer.phone, fontSize: 10}],
-                            [{text: 'Invoice No.:', fontSize: 10}, {text: `0000${inv.id}`, fontSize: 10}],
-                            [{text: 'Invoice date:', fontSize: 10}, {text: this.toLocalDate(inv.idate), fontSize: 10}]
-                        ]
-                    }
+                    columns: [
+                        {
+                            stack: [
+                                `Bill to:`,
+                                `${customer.name}, ${this.calculateAge(customer.dob)}/${customer.gender},`,
+                                `${customer.address?customer.address:''}`,
+                                `Ph: ${customer.phone}`,
+                                ' ',
+                            ],fontSize:8, bold: true
+                        },
+                        {
+                            stack: [
+                            `SDC Register no.`,
+                            `${customer.regno}`
+                            ], fontSize:8, bold: true
+                        },
+                        {
+                            stack: [
+                            `Date: ${this.toLocalDate(inv.idate)}`,
+                            ], fontSize:8, bold: true, alignment: 'right'
+                        },
+                    ]
                 },
                 {
                     layout: 'lightHorizontalLines',
                     style: 'tableStyle',
                     table: {
-                        widths: [40, '*', 100],
+                        widths: [40,'*','*','*','*','*'],
                         headerRows: 1,
                         body: billContent
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1 } ]
                 },
                 {
-                    columns: [{
-                        stack: [
-                            'Terms & conditions:',
-                            'CHEQUE TO BE CROSSED & MAKE PAYABLE TO THANJAI TOURS & TRAVELS PTE LTD',
-                            'This is a computer generated invoice, no signature is required'
-                        ], margin: 20, fontSize:10
-                    }]
+                    layout: 'noBorders',
+                    style: 'tableStyle',
+                    table: {
+                        widths: [40,'*','*','*','*','*'],
+                        headerRows: 0,
+                        body: totalContent
+                    }
                 },
                 {
-                    columns: [{
-                        stack: [
-                            'Bank Account Details:',
-                            'Thanjai Tours & Travels Pte Ltd',
-                            'Ocbc Current Account: 521-881-789-001',
-                            'DBS current Account: 011-904-546-9',
-                            'Paynow: UEN 201105122K'
-                        ], margin: 20, fontSize:10
-                    }]
-                }
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, color: '#f03333' } ]
+                },
+                {
+                    layout: 'noBorders',
+                    style: 'tableStyle',
+                    table: {
+                        widths: ['*','*','*'],
+                        headerRows: 0,
+                        body: paymentDetails
+                    }
+                },
             ]
 
             var docDefinition = { 
-
+                watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
+                pageSize: 'A5',
+                pageMargins: [ 10, 10, 10, 10 ],
+                footer: {
+                    columns: [
+                        { text: 'Thanks for choosing Smile Dental Care', alignment: 'center', fontSize: 7, bold: true }
+                    ]
+                },
                 content: content,
                 styles: {
                     table: {
-                        fontSize: 10
+                        fontSize: 7,
+                        hLineColor: '#f03333'
                     },
                     tableStyle: {
-                        margin: 10
+                        margin: 0,
+
                     },
                     title: {
                         fontSize: 20, bold: true
@@ -425,7 +495,29 @@ export default {
                 } 
             }
             pdfMake.createPdf(docDefinition).open()
-        },  
+        },
+        
+        decimalRound(n) {
+            let round = Math.round((n + Number.EPSILON) * 100) / 100
+            let num = round.toFixed(2)
+            let x = num.toString();
+            let deciPoints = x.substring(x.length - 3);
+            let woDeciPoints = x.substring(0, x.length - 3);
+            let lastThree = woDeciPoints.substring(woDeciPoints.length - 3);
+            let otherNumbers = woDeciPoints.substring(0, woDeciPoints.length - 3);
+            if (otherNumbers != '')
+                lastThree = ',' + lastThree;
+            let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + deciPoints
+            return res
+        },
+
+        calculateAge(dob) {
+            const birthDate = new Date(dob)
+            const now = new Date();
+            const diffInMs = now.getTime() - birthDate.getTime();
+            const ageDate = new Date(diffInMs);
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        },
 
         addItem() {
             const item = {
@@ -537,11 +629,12 @@ export default {
                 cid: this.cid,
                 idate: new Date(this.idate).getTime(),
                 amount: this.amount,
-                updatedBy: this.user.id,
+                updatedby: this.user.id,
                 items: this.items
             }
             supabase.from('invoices').update(inv).eq('id', this.id)
             .then((res) => {
+                console.log(res);
                 if(res.data) {
                     this.$store.dispatch('createAlert',{type: 'info', message: 'Invoice updated!'})
                     this.$store.dispatch('getInvoices')

@@ -259,7 +259,6 @@ export default {
         },
 
         addPayment(item) {
-            console.log(item);
             this.addPaymentDialog = true
             this.selectedInv = item
         },
@@ -269,7 +268,6 @@ export default {
         },
 
         updatePayment() {
-            console.log(this.selectedInv);
             let items = this.selectedInv.payments
             let payments = [
                 ...items,
@@ -383,7 +381,6 @@ export default {
             //     })
             // }
             this.fitems = this.filtInvs
-            console.log(this.filtInvs);
         }
     },
 
