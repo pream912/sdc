@@ -22,7 +22,7 @@
                     <v-card-actions>
                         <v-btn rounded :loading="loading" @click="login" color="green">Login</v-btn>
                         <v-spacer></v-spacer>
-                        <v-btn text @click="reg = !reg" color="green">Go to Signup</v-btn>
+                        <!-- <v-btn text @click="reg = !reg" color="green">Go to Signup</v-btn> -->
                     </v-card-actions>
                 </v-card>
                 <v-card v-else class="rounded-xl" elevation="10" max-width="800px">
