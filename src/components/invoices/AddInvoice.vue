@@ -287,6 +287,7 @@ export default {
             let date = new Date(+inv.idate)
             this.invEditing = true
             this.id = inv.id
+            this.amount = inv.amount
             this.dialog = true
             this.cid = inv.cid
             this.idate = date.toISOString().substr(0,10)
@@ -365,10 +366,11 @@ export default {
                 [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
             for(let i in payments) {
-                console.log(payments[i]);
-                paymentDetails.push([
-                    {text: `${this.toLocalDate(payments[i].date)} - ${this.decimalRound(payments[i].ramount)} by ${payments[i].mop}`, alignment: 'left', fontSize: 7},{},{}
-                ])
+                if(payments[i].ramount > 0) {
+                    paymentDetails.push([
+                        {text: `${this.toLocalDate(payments[i].date)} - ₹${this.decimalRound(+payments[i].ramount)} by ${payments[i].mop}`, alignment: 'left', fontSize: 7},{},{}
+                    ])
+                }
             }
 
             let content = [
@@ -468,15 +470,26 @@ export default {
                         body: paymentDetails
                     }
                 },
+                {
+                    columns: [
+                    {stack: [
+                        ' ',
+                        ' ',
+                        ' ',
+                        ' ',
+                        'Authorized Signatory',
+                    ], alignment: 'left', fontSize:7, bold: true
+                    },]
+                },
             ]
 
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
                 pageSize: 'A5',
-                pageMargins: [ 10, 10, 10, 10 ],
+                pageMargins: [ 10, 10, 10, 20 ],
                 footer: {
                     columns: [
-                        { text: 'Thanks for choosing Smile Dental Care', alignment: 'center', fontSize: 7, bold: true }
+                        { text: this.footer, alignment: 'center', fontSize: 7, bold: true }
                     ]
                 },
                 content: content,
@@ -586,7 +599,7 @@ export default {
         async saveInv() {
             this.loading = true
             const payment = [{
-                date: this.idate,
+                date: new Date(this.idate).getTime(),
                 mop: this.mop,
                 ramount: this.ramount
             }]
@@ -612,23 +625,13 @@ export default {
                 console.log(error);
                 this.clear()
             }
-            // .then((res) => {
-            //     if(res.data) {
-            //         this.printInvoice(res.data[0])
-            //         this.clear()
-            //         this.$store.dispatch('createAlert',{type: 'success', message: 'Invoice created'})
-            //     }
-            //     if(res.error) {
-            //         this.$store.dispatch('createAlert',{type: 'error', message: res.error.message})
-            //     }
-            // })
         },
 
         updateInv() {
             const inv = {
                 cid: this.cid,
                 idate: new Date(this.idate).getTime(),
-                amount: this.amount,
+                amount: this.famount,
                 updatedby: this.user.id,
                 items: this.items
             }
@@ -675,7 +678,7 @@ export default {
             let items = this.selectedInv.payments
             let payments = [
                 ...items,
-                {date: this.idate, mop: this.mop, ramount: this.ramount}
+                {date: new Date(this.idate).getTime(), mop: this.mop, ramount: this.ramount}
             ]
             supabase.from('invoices').update({payments: payments}).match({id: this.selectedInv.id})
             .then(() => {
@@ -741,6 +744,10 @@ export default {
         
         invs() {
             return this.$store.getters.loadedInvoices
+        },
+
+        footer() {
+            return this.$store.getters.loadedFooter
         },
 
         user() {

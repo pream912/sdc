@@ -34,7 +34,7 @@
                         <v-list-item-title>Invoice</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
-                <v-list-group
+                <!-- <v-list-group
                     :value="false"
                     prepend-icon="mdi-book-open-variant"
                 >
@@ -76,14 +76,14 @@
                             <v-list-item-title>Vendor Outstanding</v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                </v-list-group>
+                </v-list-group> -->
                 
                 <v-list-item v-if="isAdmin" link to="/users">
                     <v-list-item-icon>
-                        <v-icon> mdi-account-multiple-outline </v-icon>
+                        <v-icon> mdi-cog </v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
-                        <v-list-item-title>Users</v-list-item-title>
+                        <v-list-item-title>Settings</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list>
@@ -98,7 +98,7 @@
         </v-navigation-drawer>
         <v-app-bar app clipped-left>
             <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-toolbar-title>Smile Dental Clinic</v-toolbar-title>
+            <v-toolbar-title>Smile Dental Care</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-avatar>
                 <v-icon>

@@ -17,13 +17,14 @@ new Vue({
   created () {
     supabase.auth.onAuthStateChange((event) => {
       if (event == 'SIGNED_IN') {
-          //const user = supabase.auth.user()
+          const user = supabase.auth.user()
           store.commit('SET_LOGGED_IN', true)
-          store.commit('SET_IS_ADMIN', true)
+          store.commit('SET_IS_ADMIN', user.user_metadata.isAdmin)
           store.dispatch('getServices')
           store.dispatch('getCustomers')
           store.dispatch('getInvoices')
-          // store.dispatch('getUsers')
+          store.dispatch('getUsers')
+          store.dispatch('getFooter')
       }
       if (event == 'SIGNED_OUT') {
           store.commit('SET_LOGGED_IN', false)

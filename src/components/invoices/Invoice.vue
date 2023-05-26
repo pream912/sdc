@@ -271,7 +271,7 @@ export default {
             let items = this.selectedInv.payments
             let payments = [
                 ...items,
-                {date: this.idate, mop: this.mop, ramount: this.ramount}
+                {date: new Date(this.idate).getTime(), mop: this.mop, ramount: this.ramount}
             ]
             supabase.from('invoices').update({payments: payments}).match({id: this.selectedInv.id})
             .then(() => {
@@ -283,7 +283,7 @@ export default {
 
         resetPayment(id) {
             let payments = [
-                {date: this.idate, mop: 'online', ramount: '0'}
+                {date: new Date(this.idate).getTime(), mop: 'online', ramount: '0'}
             ]
             supabase.from('invoices').update({payments: payments}).match({id: id})
             .then(() => {

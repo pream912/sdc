@@ -10,13 +10,16 @@
                                 <v-text-field v-model="name" label="Name"></v-text-field>
                             </v-col>
                             <v-col cols="6">
+                                <v-text-field v-model="regno" label="Reg no."></v-text-field>
+                            </v-col>
+                            <v-col cols="6">
                                 <v-text-field v-model="phone" label="Phone"></v-text-field>
                             </v-col>
                             <v-col cols="6">
                                 <v-text-field @input="getDateOfBirthFromAge(age)" v-model="age" label="Age"></v-text-field>
                             </v-col>
                             <v-col cols="6">
-                                <v-select :items="genderlist" v-model="gender"></v-select>
+                                <v-select :items="genderlist" label="Sex" v-model="gender"></v-select>
                             </v-col>
                             <v-col cols="12">
                                 <v-menu
@@ -70,6 +73,7 @@ export default {
         address: null,
         age: null,
         dob: null,
+        regno: null,
         gender: null,
         loading: false,
         editing: false,
@@ -85,6 +89,7 @@ export default {
         edit(item) {
             this.name = item.name
             this.phone = item.phone
+            this.regno = item.regno
             this.address = item.address
             this.dob = item.dob
             this.gender = item.gender
@@ -118,6 +123,7 @@ export default {
             const customer = {
                 name: this.name,
                 phone: this.phone,
+                regno: this.regno,
                 address: this.address,
                 dob: this.dob,
                 gender: this.gender,
@@ -146,6 +152,7 @@ export default {
             const customer = {
                 name: this.name,
                 phone: this.phone,
+                regno: this.regno,
                 address: this.address,
                 dob: this.dob,
                 gender: this.gender,
@@ -169,6 +176,7 @@ export default {
         close() {
             this.name = null
             this.phone = null
+            this.regno = null
             this.address = null
             this.dob = null
             this.age = null

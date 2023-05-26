@@ -83,7 +83,7 @@
                                 <h3>Total Income</h3>
                             </v-col>
                             <v-col cols="12">
-                                <h1 class="green--text">₹{{totalSales}}</h1>
+                                <h1 class="green--text">₹{{ decimalRound(totalSales) }}</h1>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -97,7 +97,7 @@
                                 <h3>Pending payments</h3>
                             </v-col>
                             <v-col cols="12">
-                                <h1 class="red--text">₹{{pendingAmount}}</h1>
+                                <h1 class="red--text">₹{{ decimalRound(pendingAmount) }}</h1>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -200,6 +200,19 @@ export default {
                     })
                 }
             }
+        },
+        decimalRound(n) {
+            let round = Math.round((n + Number.EPSILON) * 100) / 100
+            let num = round.toFixed(2)
+            let x = num.toString();
+            let deciPoints = x.substring(x.length - 3);
+            let woDeciPoints = x.substring(0, x.length - 3);
+            let lastThree = woDeciPoints.substring(woDeciPoints.length - 3);
+            let otherNumbers = woDeciPoints.substring(0, woDeciPoints.length - 3);
+            if (otherNumbers != '')
+                lastThree = ',' + lastThree;
+            let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + deciPoints
+            return res
         },
     },
 

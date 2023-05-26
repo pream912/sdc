@@ -14,7 +14,8 @@ export default new Vuex.Store({
         services: [],
         invoices: [],
         allinvoices: [],
-        users: []
+        users: [],
+        footer: null
     },
 
     getters: {
@@ -59,6 +60,9 @@ export default new Vuex.Store({
         loadedUsers (state) {
             return state.users
         },
+        loadedFooter (state) {
+            return state.footer
+        }
     },
 
     mutations: {
@@ -89,12 +93,25 @@ export default new Vuex.Store({
         SET_USERS (state, payload) {
             state.users = payload
         },
+        SET_FOOTER (state, payload) {
+            state.footer = payload
+        },
     },
     actions: {
         async getCustomers ({commit, dispatch}) {
             const { data, error } = await supabase.from('customers').select('*')
             if(data) {
                 commit('SET_CUSTOMERS', data)
+            }
+            if(error) {
+                dispatch('createAlert',{type: 'error', message: error.message})
+            }
+        },
+
+        async getFooter ({commit, dispatch}) {
+            const { data, error } = await supabase.from('footer').select('*')
+            if(data) {
+                commit('SET_FOOTER', data[0].message)
             }
             if(error) {
                 dispatch('createAlert',{type: 'error', message: error.message})

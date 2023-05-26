@@ -60,6 +60,21 @@
                 </v-data-table>
             </v-col>
         </v-row>
+        <v-row class="pa-3">
+            <v-btn @click="footerDialog = true" color="green">Update Footer</v-btn>
+            <v-dialog v-model="footerDialog" persistent max-width="750px">
+                <v-card>
+                    <v-card-title>Update Footer Message</v-card-title>
+                    <v-card-text>
+                        <v-textarea label="Footer Message" v-model="fmessage" outlined></v-textarea>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="green" @click="updateFooter">Update</v-btn>
+                        <v-btn color="red" @click="footerDialog = false">Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
     </v-container>
 </template>
 
@@ -80,7 +95,9 @@ export default {
         email: null,
         password: null,
         rpassword: null,
-        loading: false
+        loading: false,
+        footerDialog: false,
+        fmessage: null
     }),
     methods: {
         createUser() {
@@ -138,6 +155,17 @@ export default {
             this.$store.dispatch('getUsers')
         },
 
+        updateFooter() {
+            let footer = {
+                message: this.fmessage
+            }
+            supabase.from('footer').update(footer).eq('id', 1)
+            .then(() => {
+                this.footerDialog = false
+                this.$store.dispatch('getFooter')
+            })
+        },
+
         close() {
             this.name = null
             this.phone = null
@@ -159,5 +187,8 @@ export default {
             return this.$store.getters.loadedUsers
         }
     },
+    mounted() {
+        this.fmessage = this.$store.getters.loadedFooter
+    }
 }
 </script>
