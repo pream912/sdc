@@ -273,6 +273,7 @@ export default {
         },
         getRate() {
             this.rate = this.$store.getters.loadedService(this.sid).price
+            this.description = this.$store.getters.loadedService(this.sid).description
         },
         retRate(sid) {
             return this.$store.getters.loadedService(sid).price
@@ -378,7 +379,7 @@ export default {
                     columns: [{width: 30, image: logo, fit: [80,80]},
                     {stack: [
                         'SMILE DENTAL CARE',
-                        'Dr. Ranjith Chandar B.D.S, F.I.L.D(Malaysia),',
+                        'Dr. Ranjit Chandar B.D.S, F.I.L.D(Malaysia),',
                         'Certified Root Canal Specialist',
                         'Regd No. - 11850',
                     ], alignment: 'right', fontSize:8, bold: true
@@ -478,6 +479,7 @@ export default {
                         ' ',
                         ' ',
                         'Authorized Signatory',
+                        'Smile Dental Care',
                     ], alignment: 'left', fontSize:7, bold: true
                     },]
                 },

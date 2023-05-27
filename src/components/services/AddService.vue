@@ -12,6 +12,9 @@
                             <v-col cols="6">
                                 <v-text-field v-model="price" label="Price"></v-text-field>
                             </v-col>
+                            <v-col cols="6">
+                                <v-text-field v-model="description" label="Description"></v-text-field>
+                            </v-col>
                         </v-row>
                     </v-card-text>
                     <v-card-actions>
@@ -33,7 +36,7 @@ export default {
         dialog: false,
         name: null,
         price: null,
-
+        description: null,
         loading: false, 
         search: '',
         id: null,
@@ -46,6 +49,7 @@ export default {
         edit(item) {
             this.name = item.name
             this.price = item.price
+            this.description = item.description
             this.editing = true
             this.dialog = true
             this.id = item.id
@@ -55,6 +59,7 @@ export default {
             const service = {
                 name: this.name,
                 price: this.price,
+                description: this.description,
                 createdby: this.user.id
             }
             supabase.from('services').insert([
@@ -79,6 +84,7 @@ export default {
             const service = {
                 name: this.name,
                 price: +this.price,
+                description: this.description
             }
             console.log(service);
             supabase.from('services').update(service).eq('id', this.id)
@@ -99,6 +105,7 @@ export default {
         close() {
             this.name = null
             this.price = null
+            this.description = null
             this.dialog = null
         },
 

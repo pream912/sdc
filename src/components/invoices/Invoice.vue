@@ -401,7 +401,10 @@ export default {
         },
 
         invs() {
-            return this.$store.getters.allLoadedInvoices
+            let invs = this.$store.getters.allLoadedInvoices
+            return invs.filter((item) => {
+                return item.isCanceled != true
+            })
         },
 
         amount() {
