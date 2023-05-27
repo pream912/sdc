@@ -128,40 +128,16 @@ export default new Vuex.Store({
             }
         },
 
-        async getInvoices ({commit, dispatch, getters}) {
-            // if(getters.isAdmin) {
-            //     const { data, error } = await supabase.from('invoices').select('*')
-            //     if(data) {
-            //         commit('SET_INVS', data)
-            //     }
-            //     if(error) {
-            //         dispatch('createAlert',{type: 'error', message: error.message})
-            //     }
-            // } else {
-            //     const user = supabase.auth.user()
-            //     const uid = user.id
-            //     const { data, error } = await supabase.from('invoices').select('*').eq('createdby', uid)
-            //     if(data) {
-            //         commit('SET_INVS', data)
-            //     }
-            //     if(error) {
-            //         dispatch('createAlert',{type: 'error', message: error.message})
-            //     }
-            // }
+        async getInvoices ({commit, dispatch}) {
             const { data, error } = await supabase.from('invoices').select('*').order('id', { ascending: false })
             if(data) {
-                commit('SET_ALLINVS', data)
-                if(getters.isAdmin) {
-                    commit('SET_INVS', data)
-                } else {
-                    const user = supabase.auth.user()
-                    const uid = user.id
-                    let filtInvs = data.filter((item) => {
-                        return item.createdby == uid && item.deleted != true
-                    })
-                    commit('SET_INVS', filtInvs)
-                }
+                let filtInvs = data.filter((item) => {
+                    return item.isCanceled != true
+                })
+                commit('SET_ALLINVS', filtInvs)
+                commit('SET_INVS', filtInvs)
             }
+                
             if(error) {
                 dispatch('createAlert',{type: 'error', message: error.message})
             }

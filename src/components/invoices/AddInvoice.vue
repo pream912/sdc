@@ -166,12 +166,24 @@
                                 </v-col>
                             </v-row>
                             <v-row>
+                                <v-col cols="4">
+                                    <v-btn @click="treatDialog = true" color="green">Add Treatment Details</v-btn>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-btn @click="treatViewDialog = true" v-if="treatDetails.length!=0" color="orange">View Treatment Details</v-btn>
+                                </v-col>
                                 <v-spacer></v-spacer>
                                 <v-col cols="4">
                                     <v-text-field readonly outlined label="Total amount" v-model="tamount"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
+                                <v-col cols="4">
+                                    <v-btn color="green">Add X-Ray</v-btn>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-btn v-if="xrayDetails.length!=0" color="orange">View X-Ray</v-btn>
+                                </v-col>
                                 <v-spacer></v-spacer>
                                 <v-col cols="4">
                                     <v-text-field outlined label="Discount" v-model="discount"></v-text-field>
@@ -188,6 +200,69 @@
                 </v-dialog>
             </v-col>
         </v-row>
+        <v-row>
+            <v-dialog v-model="treatDialog" persistent max-width="750px">
+                <v-card>
+                    <v-card-title>Service details</v-card-title>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="6">
+                                <v-menu
+                                    v-model="tremenu"
+                                    :close-on-content-click="false"
+                                    :nudge-right="40"
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="290px"
+                                >
+                                    <template v-slot:activator="{ on }">
+                                    <v-text-field 
+                                    outlined
+                                    v-model="tredate"
+                                    label="Treatment date"
+                                    v-on="on"
+                                    
+                                    readonly
+                                    ></v-text-field>
+                                    </template>
+                                    <v-date-picker @input="tremenu = false" v-model="tredate"></v-date-picker>
+                                </v-menu>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-text-field outlined v-model="tredetail" label="Detail"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn v-if="tediting" @click="updateTreatment" color="blue">Update</v-btn>
+                        <v-btn v-else @click="addTreatment" color="green">Save</v-btn>
+                        <v-btn color="red" @click="clearTreat">Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
+        <v-row>
+            <v-dialog v-model="treatViewDialog" max-width="750px">
+                <v-card>
+                    <v-card-title>Treatment Details</v-card-title>
+                    <v-card-text>
+                        <v-row v-for="(treat, index) in treatDetails" :key="index">
+                            <v-col cols="4">
+                                <h4>{{ toLocalDate(treat.date) }}</h4>
+                            </v-col>
+                            <v-col cols="6">
+                                <h4> {{ treat.detail }} </h4>
+                            </v-col>
+                            <v-col>
+                                <v-btn icon small> <v-icon color="orange">mdi-pencil</v-icon> </v-btn>
+                                <v-btn icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+        </v-row>
     </v-container>
 </template>
 
@@ -196,6 +271,12 @@ import AddCustomerVue from '../customers/AddCustomer.vue'
 import {supabase} from '../../supabase'
 export default {
     data: () => ({
+        treatDialog: false,
+        treatViewDialog: false,
+        treatDetails: [],
+        tediting: false,
+        tredetail: null,
+        xrayDetails:[],
         loading: false,
         dialog: false,
         dialog1: false,
@@ -209,7 +290,7 @@ export default {
             v => !!v || 'This field is required',
             v => /^\d+(\.\d{1,2})?$/.test(v) || 'Enter valid amount',
         ],
-        paymentmodes: ['Cash', 'Online', 'Credit'],
+        paymentmodes: ['Bank Transfer', 'Cash', 'Cheque', 'Credit Card', 'Debit Card', 'G-Pay', 'Paytm', 'PhonePe'],
         mop: null,
         items: [],
         headers: [
@@ -230,8 +311,8 @@ export default {
         to: null,
         fmenu: false,
         tmenu: false,
-        tramenu: false,
-        tradate: null,
+        tremenu: false,
+        tredate: null,
         remenu: false,
         redate: null,
         fdate: null,
@@ -265,6 +346,20 @@ export default {
                this.addCustomer()
             }
         },  
+        addTreatment() {
+            this.treatDetails.push({
+                date: new Date(this.tredate).getTime(),
+                detail: this.tredetail
+            })
+            this.treatDetails.sort((a,b) => a.date-b.date)
+            this.clearTreat()
+        },
+        clearTreat() {
+            this.tredate = null
+            this.tredetail = null
+            this.tediting = false
+            this.treatDialog = false
+        },
         addCustomer() {
             this.$refs.addcus.open()
         },
