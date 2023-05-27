@@ -45,9 +45,10 @@ export default {
         },
         edit(item) {
             this.name = item.name
-            this.price = item.phone
+            this.price = item.price
             this.editing = true
             this.dialog = true
+            this.id = item.id
         },
         createService() {
             this.loading = true
@@ -77,9 +78,9 @@ export default {
             this.loading = true
             const service = {
                 name: this.name,
-                price: this.price,
-                createdby: this.user.id
+                price: +this.price,
             }
+            console.log(service);
             supabase.from('services').update(service).eq('id', this.id)
             .then((res) => {
                 if(res.data) {
@@ -91,6 +92,7 @@ export default {
                 if(res.error) {
                     this.$store.dispatch('createAlert',{type: 'error', message: res.error.message})
                     this.loading = false
+                    console.log(res.error);
                 }
             })
         },
