@@ -4,10 +4,10 @@
             <v-col cols="12">
                 <h2>Invoice report</h2>
             </v-col>
-            <v-col cols="6">
+            <!-- <v-col cols="6">
                 <v-autocomplete :disabled="sall" @change="applyFilters" label="Select staff" :items="users" v-model="uid" item-value="uid" item-text="name" ></v-autocomplete>
             </v-col>
-            <v-col cols="6"><v-checkbox label="Select all" @change="applyFilters" v-model="sall"></v-checkbox></v-col>
+            <v-col cols="6"><v-checkbox label="Select all" @change="applyFilters" v-model="sall"></v-checkbox></v-col> -->
             <v-col cols="4">
                 <v-select @change="applyFilters" value="Current month" filled label="Duration" v-model="duration" :items="duraList"></v-select>
             </v-col>
@@ -67,10 +67,10 @@
                     <v-card-text>
                         <v-row>
                             <v-col cols="8">
-                                <h3>Total profit</h3>
+                                <h3>Total Amount</h3>
                             </v-col>
                             <v-col cols="12">
-                                <h1 class="green--text">${{Math.round(tprofit * 100) / 100}}</h1>
+                                <h1 class="green--text">₹{{ totalAmount }}</h1>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -81,6 +81,16 @@
                 :headers="headers"
                 :search="search"
                 :items="items">
+                    <template v-slot:[`item.idate`]="{ item }">
+                        {{toLocalDate(item.idate)}}
+                    </template>
+                    <template v-slot:[`item.regno`]="{ item }">
+                        {{getRegno(item.cid)}}
+                    </template>
+                    <template v-slot:[`item.ramount`]="{ item }">
+                        <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
+                        <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
+                    </template>
                 </v-data-table>
             </v-col>
             <v-col>
@@ -95,12 +105,10 @@ export default {
     data: () => ({
         headers: [
             {text: 'Invoice no.', value: 'invno'},
-            {text: 'PNR', value: 'pnr'},
-            {text: 'Customer', value: 'customer'},
-            {text: 'Invoice date', value: 'date'},
-            {text: 'Purchase amount($)', value: 'purchase'},
-            {text: 'Sale amount($)', value: 'sale'},
-            {text: 'Profit($)', value: 'profit'},
+            {text: 'Reg no.', value: 'regno'},
+            {text: 'Invoice date.', value: 'idate'},
+            {text: 'Invoice amount(₹)', value: 'amount'},
+            {text: 'Balance due(₹)', value: 'ramount'},
         ],
         duraList: ['Current month', 'Last 7 days', 'Select range'],
         duration: 'Current month',
@@ -178,6 +186,18 @@ export default {
             })
         },
 
+        getRegno(cid) {
+            return this.$store.getters.loadedCustomer(cid).regno
+        },
+
+        balAmount(payments, amount){
+            let tamount = 0
+            for(let i in payments) {
+                tamount = tamount + +payments[i].ramount
+            }
+            return +amount - +tamount
+        },
+
         applyFilters() {
             this.tmenu = false
             this.fmenu = false
@@ -226,7 +246,8 @@ export default {
             this.filtInvs = invoices.filter((item) => {
                 return item.idate >= this.frange  && item.idate < this.trange
             })
-            this.getData()
+            this.items = this.filtInvs
+            //this.getData()
         },
         JSONToCSVConvertor(JSONData, ReportTitle) {
             var ShowLabel = Object.keys(this.items[0])
@@ -291,6 +312,15 @@ export default {
         users() {
             return this.$store.getters.loadedUsers
         },
+
+        totalAmount() {
+            let items = this.invoices
+            let tamount = 0
+            for(let i in items) {
+                tamount = +tamount + items[i].amount
+            }
+            return tamount
+        }
     },
     mounted() {
         this.applyFilters()
