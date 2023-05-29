@@ -179,10 +179,10 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="4">
-                                    <v-btn color="green">Add X-Ray</v-btn>
+                                    <v-btn @click="xrayDialog = true" color="green">Add X-Ray</v-btn>
                                 </v-col>
                                 <v-col cols="4">
-                                    <v-btn v-if="xrayDetails.length!=0" color="orange">View X-Ray</v-btn>
+                                    <v-btn @click="xrayViewDialog = true" v-if="xrayDetails.length!=0" color="orange">View X-Ray</v-btn>
                                 </v-col>
                                 <v-spacer></v-spacer>
                                 <v-col cols="4">
@@ -203,7 +203,7 @@
         <v-row>
             <v-dialog v-model="treatDialog" persistent max-width="750px">
                 <v-card>
-                    <v-card-title>Service details</v-card-title>
+                    <v-card-title>Treatment details</v-card-title>
                     <v-card-text>
                         <v-row>
                             <v-col cols="6">
@@ -255,8 +255,45 @@
                                 <h4> {{ treat.detail }} </h4>
                             </v-col>
                             <v-col>
-                                <v-btn icon small> <v-icon color="orange">mdi-pencil</v-icon> </v-btn>
-                                <v-btn icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn>
+                                <v-btn @click="deleteTreat(index)" icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+        </v-row>
+        <v-row>
+            <v-dialog v-model="xrayDialog" max-width="750px">
+                <v-card>
+                    <v-card-title>Add details</v-card-title>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12">
+                                <v-textarea outlined label="Imgae Base64" v-model="imgBase"></v-textarea>
+                            </v-col>
+                            <v-col>
+                                <v-text-field outlined label="Caption" v-model="caption"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="addXray" color="green">Save</v-btn>
+                        <v-btn @click="clearXray" color="red">Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
+        <v-row>
+            <v-dialog v-model="xrayViewDialog" max-width="750px">
+                <v-card>
+                    <v-card-text>
+                        <v-row v-for="(xray, index) in xrayDetails" :key="index">
+                            <v-col cols="6">
+                                <img :src="xray.imgBase" width="300px">
+                                <p>{{ xray.caption }}</p>
+                            </v-col>
+                            <v-col cols="2">
+                                <v-btn @click="deleteXray(index)" icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -277,6 +314,11 @@ export default {
         tediting: false,
         tredetail: null,
         xrayDetails:[],
+        xrayDialog: false,
+        xrayViewDialog: false,
+        xediting: false,
+        imgBase: null,
+        caption: null,
         loading: false,
         dialog: false,
         dialog1: false,
@@ -354,16 +396,35 @@ export default {
             this.treatDetails.sort((a,b) => a.date-b.date)
             this.clearTreat()
         },
+        deleteTreat(index) {
+            this.treatDetails.splice(index, 1)
+        },
         clearTreat() {
             this.tredate = null
             this.tredetail = null
             this.tediting = false
             this.treatDialog = false
         },
+        addXray() {
+            this.xrayDetails.push({
+                imgBase: this.imgBase,
+                caption: this.caption
+            })
+            this.clearXray()
+        },
+        deleteXray(index) {
+            this.xrayDetails.splice(index, 1)
+        },
+        clearXray() {
+            this.imgBase = null
+            this.caption = null
+            this.xrayDialog = false
+        },
         addCustomer() {
             this.$refs.addcus.open()
         },
         open() {
+            this.idate = new Date().toISOString().substring(0,10)
             this.dialog = true
         },
         getRate() {
@@ -383,13 +444,14 @@ export default {
             let date = new Date(+inv.idate)
             this.invEditing = true
             this.id = inv.id
-            this.amount = inv.amount
             this.dialog = true
             this.cid = inv.cid
             this.idate = date.toISOString().substr(0,10)
             this.ramount = this.checkAmount(inv.payments)
             this.discount = inv.discount
             this.items = inv.items
+            inv.treatmentDetails?this.treatDetails = inv.treatmentDetails : this.treatDetails = []
+            
         },
         printInvoice(inv) {
             var pdfMake = require('pdfmake/build/pdfmake.js')
@@ -404,6 +466,7 @@ export default {
             let billContent = []
             let totalContent = []
             let paymentDetails = []
+            let treatmentDetails = []
 
             billContent.push([
                 {text: 'S.No.', alignment: 'center', bold: true, fontSize: 7}, 
@@ -415,11 +478,19 @@ export default {
             ])
             let items = inv.items
             let payments = inv.payments
+            let treat = inv.treatmentDetails?inv.treatmentDetails:[]
             let tamount = 0
             let bamount = 0
             let tramount = 0
+            let isCrown = false
+            let regex = /\bCROWN\b/
+            let containsCrown = false
 
             for(let i in items) {
+                containsCrown = regex.test(items[i].name)
+                if(containsCrown) {
+                    isCrown = true
+                }
                 billContent.push([
                     {text: +i + 1, alignment: 'center', fontSize: 7}, 
                     {text: this.getSname(items[i].sid), alignment: 'left', fontSize: 7}, 
@@ -457,17 +528,35 @@ export default {
             )
 
             paymentDetails.push(
-                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true},{},{}],
+                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true, colSpan: 2},{},{}],
                 [{},{},{}],
                 [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
             for(let i in payments) {
                 if(payments[i].ramount > 0) {
                     paymentDetails.push([
-                        {text: `${this.toLocalDate(payments[i].date)} - ₹${this.decimalRound(+payments[i].ramount)} by ${payments[i].mop}`, alignment: 'left', fontSize: 7},{},{}
+                        {text: `${this.toLocalDate(payments[i].date)} - ₹${this.decimalRound(+payments[i].ramount)} by ${payments[i].mop}`, alignment: 'left', fontSize: 7, colSpan: 3},{},{}
                     ])
                 }
             }
+
+            if(treat.length!=0) {
+                treatmentDetails.push(
+                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true, colSpan: 2},{},{}],
+                    [{},{},{}]
+                )
+                for(let i in treat) {
+                    treatmentDetails.push([
+                        {text: `${this.toLocalDate(treat[i].date)}`, fontSize: 7, },
+                        {text: treat[i].detail, fontSize: 7, colSpan: 2},
+                        {}
+                    ])
+                }
+            } else {
+                treatmentDetails.push([{},{},{}])
+            }
+
+
 
             let content = [
                 {
@@ -504,7 +593,7 @@ export default {
                 },
                 
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 3, color: '#f03333' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
                 },
                 {
                     columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#f03333', bold: true, alignment: 'center', margin: 5}]
@@ -555,16 +644,29 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1, color: '#f03333' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
                 },
                 {
-                    layout: 'noBorders',
-                    style: 'tableStyle',
-                    table: {
-                        widths: ['*','*','*'],
-                        headerRows: 0,
-                        body: paymentDetails
-                    }
+                    columns: [
+                        {
+                            layout: 'noBorders',
+                            style: 'tableStyle',
+                            table: {
+                                widths: ['*','*','*'],
+                                headerRows: 0,
+                                body: paymentDetails
+                            }
+                        },
+                        {
+                            layout: 'noBorders',
+                            style: 'tableStyle',
+                            table: {
+                                widths: ['*','*','*'],
+                                headerRows: 0,
+                                body: treatmentDetails
+                            }
+                        },
+                    ]
                 },
                 {
                     columns: [
@@ -579,6 +681,104 @@ export default {
                     },]
                 },
             ]
+            if(isCrown) {
+                content.push(
+                    {text: 'TERMS AND CONDITIONS FOR DENTAL CROWN WARRANTY', fontSize: 8, bold:true, pageBreak: 'before'},
+                    {
+                        columns:[
+                            {stack:[
+                                '1. SMILE DENTAL CARE is just a platform connecting the concerned lab which is providing warranty for their work to the patients.',
+                                '2. This warranty from concerned lab to the patients does not cover any kind of damage to accident, negligence and usage which is other than normal chewing actions. Our guarantee ceases at the replacement of the damaged work. Compensations or claims of any  kind due to breakage of the  prosthesis will not be entertained.',
+                                '3. The claim should be accompanied with the certificate of the doctor, original damaged prosthesis. Fresh tooth models of both the jaws and including the warranty certificate should be produced for the warranty claim. However, the concerned lab hold all the rights to reject any claim which is not accompanied  with the necessary documents or models or old prosthesis.',
+                                '4. The warranty does not cover any damage to the supporting & surrounding structures like tooth, gingiva or bone.',
+                                '5. The patient should follow the instructions & undergo periodic checkups once in six months or as decided by the dentist.',
+                                '6. The warranty does not cover the doctor`s consultation, radiograph, further treatments proceedings, modifications, model fabrication, temporization, transportation  and fixing charges.',
+                                '7. Any additions and omissions  from the original work will not be permitted. Warranty regarding extensions, retention, occlusion contact etc is given only for perfection of the work in the given model. The shape and appearance of the fresh prostheses may not be exactly  the same as the initial prosthesis.'
+                            ], alignment: 'left', fontSize:8}
+                        ]
+                    }
+                )
+            }
+
+            if(this.xrayDetails.length!=0) {
+                content.push(
+                    {
+                        columns: [{width: 30, image: logo, fit: [80,80]},
+                            {stack: [
+                                'SMILE DENTAL CARE',
+                                'Dr. Ranjit Chandar B.D.S, F.I.L.D(Malaysia),',
+                                'Certified Root Canal Specialist',
+                                'Regd No. - 11850',
+                            ], alignment: 'right', fontSize:8, bold: true
+                            },
+                        ],pageBreak: 'before'
+                    },
+                    {
+                        columns: [{},
+                        {
+                            width: 280,
+                            stack: [
+                            ' ',
+                            'HQ: BASEMENT, JOSHI & JOSHI COMPLEX, KAILASH NAGAR, KATTUR, TRICHY-620019, TN, INDIA',
+                            'SRI VIDHYA MEDICALS, GANDHI SALAI, SRIRANGAM, TRICHY, TN, INDIA.',
+                            '+91 9489364226 / 0431 2434898 (Srirangam)',
+                            '+91 9791765077 / +91 9092465077 / +91 431 2532277',
+                        ], alignment: 'right', fontSize:6
+                        },]
+                    },
+                    {
+                        columns: [{},
+                        {stack: [
+                            'support@smiledentalcaretrichy.com',
+                            'www.smiledentalcaretrichy.com',
+                            ' ',
+                        ], alignment: 'right', fontSize:7, bold: true
+                        },]
+                    },
+                    
+                    {
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                    },
+                    {
+                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#f03333', bold: true, alignment: 'center', margin: 5}]
+                    },
+                    {
+                        columns: [
+                            {
+                                stack: [
+                                    `Bill to:`,
+                                    `${customer.name}, ${this.calculateAge(customer.dob)}/${customer.gender},`,
+                                    `${customer.address?customer.address:''}`,
+                                    `Ph: ${customer.phone}`,
+                                    ' ',
+                                ],fontSize:8, bold: true
+                            },
+                            {
+                                stack: [
+                                `SDC Register no.`,
+                                `${customer.regno}`
+                                ], fontSize:8, bold: true
+                            },
+                            {
+                                stack: [
+                                `Date: ${this.toLocalDate(inv.idate)}`,
+                                ], fontSize:8, bold: true, alignment: 'right'
+                            },
+                        ]
+                    },
+                    {
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                    },
+                    ' '
+                )
+
+                for(let i in this.xrayDetails) {
+                    content.push(
+                        {image: this.xrayDetails[i].imgBase, fit: [200, 200]}
+                    )
+                    content.push({text: this.xrayDetails[i].caption, fontSize: 7}, ' ')
+                }
+            }
 
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
@@ -707,7 +907,8 @@ export default {
                 createdby: this.user.id,
                 payments: payment,
                 discount: this.discount,
-                items: this.items
+                items: this.items,
+                treatmentDetails: this.treatDetails
             }
             const { data, error } = await supabase.from('invoices').insert([
                 inv
@@ -730,12 +931,14 @@ export default {
                 idate: new Date(this.idate).getTime(),
                 amount: this.famount,
                 updatedby: this.user.id,
-                items: this.items
+                discount: this.discount,
+                items: this.items,
+                treatmentDetails: this.treatDetails
             }
             supabase.from('invoices').update(inv).eq('id', this.id)
             .then((res) => {
-                console.log(res);
                 if(res.data) {
+                    this.printInvoice(res.data[0])
                     this.$store.dispatch('createAlert',{type: 'info', message: 'Invoice updated!'})
                     this.$store.dispatch('getInvoices')
                     this.clear()

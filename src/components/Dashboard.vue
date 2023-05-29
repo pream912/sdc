@@ -186,9 +186,9 @@ export default {
             }
             const invs = this.invoices
             if(invs.length == 0) {
-                setInterval(() => {
-                    this.dateFilters()
-                }, 1000)
+                // setInterval(() => {
+                //     this.dateFilters()
+                // }, 1000)
             } 
             else {
                 if(this.duration == 'All') {
