@@ -333,7 +333,7 @@ export default {
             v => /^\d+(\.\d{1,2})?$/.test(v) || 'Enter valid amount',
         ],
         paymentmodes: ['Bank Transfer', 'Cash', 'Cheque', 'Credit Card', 'Debit Card', 'G-Pay', 'Paytm', 'PhonePe'],
-        mop: null,
+        mop: 'Cash',
         items: [],
         headers: [
             {text: 'Service', value: 'name'},
@@ -522,13 +522,13 @@ export default {
                     {text:`₹${this.decimalRound(+this.checkAmount(payments))}`, alignment: 'right', fontSize: 7, bold: true}
                 ],
                 [{},{},{},{},
-                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#f03333'},
-                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#f03333'}
+                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#ab2020'},
+                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#ab2020'}
                 ],
             )
 
             paymentDetails.push(
-                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true, colSpan: 2},{},{}],
+                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#ab2020', bold: true, colSpan: 2},{},{}],
                 [{},{},{}],
                 [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
@@ -542,7 +542,7 @@ export default {
 
             if(treat.length!=0) {
                 treatmentDetails.push(
-                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#f03333', bold: true, colSpan: 2},{},{}],
+                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#ab2020', bold: true, colSpan: 2},{},{}],
                     [{},{},{}]
                 )
                 for(let i in treat) {
@@ -566,7 +566,7 @@ export default {
                         'Dr. Ranjit Chandar B.D.S, F.I.L.D(Malaysia),',
                         'Certified Root Canal Specialist',
                         'Regd No. - 11850',
-                    ], alignment: 'right', fontSize:8, bold: true
+                    ], alignment: 'right', fontSize:7.5, bold: true
                     },]
                 },
                 {
@@ -574,7 +574,6 @@ export default {
                     {
                         width: 280,
                         stack: [
-                        ' ',
                         'HQ: BASEMENT, JOSHI & JOSHI COMPLEX, KAILASH NAGAR, KATTUR, TRICHY-620019, TN, INDIA',
                         'SRI VIDHYA MEDICALS, GANDHI SALAI, SRIRANGAM, TRICHY, TN, INDIA.',
                         '+91 9489364226 / 0431 2434898 (Srirangam)',
@@ -587,16 +586,16 @@ export default {
                     {stack: [
                         'support@smiledentalcaretrichy.com',
                         'www.smiledentalcaretrichy.com',
-                        ' ',
+                        ' '
                     ], alignment: 'right', fontSize:7, bold: true
                     },]
                 },
                 
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 575, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                 },
                 {
-                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#f03333', bold: true, alignment: 'center', margin: 5}]
+                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
                 },
                 {
                     columns: [
@@ -626,13 +625,13 @@ export default {
                     layout: 'lightHorizontalLines',
                     style: 'tableStyle',
                     table: {
-                        widths: [40,'*','*','*','*','*'],
+                        widths: [40,'auto','auto','*','*','*'],
                         headerRows: 1,
                         body: billContent
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 1 } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 575, y2: 0, lineWidth: 1 } ]
                 },
                 {
                     layout: 'noBorders',
@@ -644,7 +643,7 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 575, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                 },
                 {
                     columns: [
@@ -737,10 +736,10 @@ export default {
                     },
                     
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 575, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                     },
                     {
-                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#f03333', bold: true, alignment: 'center', margin: 5}]
+                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
                     },
                     {
                         columns: [
@@ -767,7 +766,7 @@ export default {
                         ]
                     },
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 400, y2: 0, lineWidth: 2, lineColor: '#f03333' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 575, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                     },
                     ' '
                 )
@@ -783,7 +782,8 @@ export default {
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
                 pageSize: 'A5',
-                pageMargins: [ 10, 10, 10, 20 ],
+                pageOrientation: 'landscape',
+                pageMargins: [ 10, 10, 10, 10 ],
                 footer: {
                     columns: [
                         { text: this.footer, alignment: 'center', fontSize: 7, bold: true }
@@ -793,7 +793,7 @@ export default {
                 styles: {
                     table: {
                         fontSize: 7,
-                        hLineColor: '#f03333'
+                        hLineColor: '#ab2020'
                     },
                     tableStyle: {
                         margin: 0,

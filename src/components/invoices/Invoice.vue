@@ -160,7 +160,7 @@ export default {
         idate: null,
         itemValidate: true,
         reqRule: [v => !!v || 'Phone number is required'],
-        paymentmodes: ['Cash', 'Online', 'Credit'],
+        paymentmodes: ['Bank Transfer', 'Cash', 'Cheque', 'Credit Card', 'Debit Card', 'G-Pay', 'Paytm', 'PhonePe'],
         mop: null,
         items: [],
         invheader: [
