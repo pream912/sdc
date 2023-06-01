@@ -115,7 +115,6 @@ export default {
         modal: false,
         duraList: ['Current month', 'Last 7 days', 'All', 'Select range'],
         duration: 'Current month',
-        filtInvs: [],
         fmenu: false,
         tmenu: false,
         fdate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -184,22 +183,6 @@ export default {
                 tdate.setHours(0,0,0,0)
                 this.trange = tdate.getTime()
             }
-            const invs = this.invoices
-            if(invs.length == 0) {
-                // setInterval(() => {
-                //     this.dateFilters()
-                // }, 1000)
-            } 
-            else {
-                if(this.duration == 'All') {
-                    this.filtInvs = invs
-                }
-                else {
-                    this.filtInvs = invs.filter((item) => {
-                        return item.idate >= this.frange  && item.idate < this.trange
-                    })
-                }
-            }
         },
         decimalRound(n) {
             let round = Math.round((n + Number.EPSILON) * 100) / 100
@@ -219,6 +202,18 @@ export default {
     computed: {
         invoices() {
             return this.$store.getters.loadedInvoices
+        },
+
+        filtInvs() {
+            let invs = this.invoices
+            if(this.duration == 'All') {
+                return invs
+            }
+            else {
+                return invs.filter((item) => {
+                    return item.idate >= this.frange  && item.idate < this.trange
+                })
+            }
         },
 
         totalSales() {

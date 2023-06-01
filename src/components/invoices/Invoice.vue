@@ -202,7 +202,6 @@ export default {
         itemIdex: null,
         selectedInv: {},
         filtInvs: [],
-        fitems: []
     }),
 
     methods: {
@@ -343,16 +342,16 @@ export default {
                 tdate.setHours(0,0,0,0)
                 this.trange = tdate.getTime()
             }
-            const invs = this.invs
-            if(this.duration == 'All'){
-                this.filtInvs = invs
-            } 
-            else {
-                this.filtInvs = invs.filter((item) => {
-                    return item.idate >= this.frange  && item.idate < this.trange
-                })
-            }
-            this.prepItems()
+            // const invs = this.invs
+            // if(this.duration == 'All'){
+            //     this.filtInvs = invs
+            // } 
+            // else {
+            //     this.filtInvs = invs.filter((item) => {
+            //         return item.idate >= this.frange  && item.idate < this.trange
+            //     })
+            // }
+            // this.prepItems()
         },
         getRegno(cid) {
             return this.$store.getters.loadedCustomer(cid).regno
@@ -405,6 +404,18 @@ export default {
             return invs.filter((item) => {
                 return item.isCanceled != true
             })
+        },
+
+        fitems() {
+            const invs = this.invs
+            if(this.duration == 'All'){
+                return invs
+            } 
+            else {
+                return invs.filter((item) => {
+                    return item.idate >= this.frange  && item.idate < this.trange
+                })
+            }
         },
 
         amount() {
