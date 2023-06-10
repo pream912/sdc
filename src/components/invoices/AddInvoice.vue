@@ -257,6 +257,9 @@
                             <v-col>
                                 <v-btn @click="deleteTreat(index)" icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn>
                             </v-col>
+                            <v-col>
+                                <v-btn @click="editTreat(index)" icon small> <v-icon color="red">mdi-pencil</v-icon> </v-btn>
+                            </v-col>
                         </v-row>
                     </v-card-text>
                 </v-card>
@@ -313,6 +316,7 @@ export default {
         treatDetails: [],
         tediting: false,
         tredetail: null,
+        teIndex: null,
         xrayDetails:[],
         xrayDialog: false,
         xrayViewDialog: false,
@@ -399,11 +403,29 @@ export default {
         deleteTreat(index) {
             this.treatDetails.splice(index, 1)
         },
+        editTreat(index) {
+            let td = new Date(this.treatDetails[index].date)
+            this.tredate = td.toISOString().substr(0,10)
+            this.tredetail = this.treatDetails[index].detail
+            this.tediting = true
+            this.treatDialog = true
+            this.teIndex = index
+        },
+        updateTreatment() {
+            this.treatDetails.splice(this.teIndex, 1)
+            this.treatDetails.push({
+                date: new Date(this.tredate).getTime(),
+                detail: this.tredetail
+            })
+            this.treatDetails.sort((a,b) => a.date-b.date)
+            this.clearTreat()
+        },
         clearTreat() {
             this.tredate = null
             this.tredetail = null
             this.tediting = false
             this.treatDialog = false
+            this.teIndex = null
         },
         addXray() {
             this.xrayDetails.push({

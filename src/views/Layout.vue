@@ -34,6 +34,14 @@
                         <v-list-item-title>Invoice</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
+                <v-list-item link to="/ppayment">
+                    <v-list-item-icon>
+                        <v-icon> mdi-cash-register </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>Pending payments</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <!-- <v-list-group
                     :value="false"
                     prepend-icon="mdi-book-open-variant"

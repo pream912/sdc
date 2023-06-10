@@ -92,6 +92,20 @@
             <v-col cols="4">
                 <v-card elevation="5">
                     <v-card-text>
+                        <v-row align-content="center" justify="center">
+                            <v-col cols="12">
+                                <h3>Amount Recieved</h3>
+                            </v-col>
+                            <v-col cols="12">
+                                <h1 class="green--text">₹{{ decimalRound(recievedPayment) }}</h1>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+            <v-col cols="4">
+                <v-card elevation="5">
+                    <v-card-text>
                         <v-row>
                             <v-col cols="12">
                                 <h3>Pending payments</h3>
@@ -104,13 +118,65 @@
                 </v-card>
             </v-col>
         </v-row>
+        <v-row>
+            <v-col cols="4">
+                <v-text-field filled label="Search" v-model="search" append-icon="mdi-magnify"></v-text-field>
+            </v-col>
+            <v-col cols="12">
+                <v-data-table
+                :headers="invheader"
+                :search="search"
+                :items="fitems">
+                    <template v-slot:[`item.idate`]="{ item }">
+                        {{toLocalDate(item.idate)}}
+                    </template>
+                    <template v-slot:[`item.regno`]="{ item }">
+                        {{getRegno(item.cid)}}
+                    </template>
+                    <template v-slot:[`item.ramount`]="{ item }">
+                        <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
+                        <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
+                    </template>
+                    <template v-slot:[`item.actions`]="{ item }">
+                        <!-- <v-btn x-small @click="addPayment(item)" v-if="balAmount(item.payments, item.amount) != 0"  color="green">Add payment</v-btn> -->
+                        <!-- <v-btn x-small @click="addVendorPayment(item)" v-if="vBalance(item) != 0"  color="blue">Vendor payment</v-btn> -->
+                        <v-btn small icon @click="printInvoice(item)">
+                            <v-icon>mdi-open-in-new</v-icon>
+                        </v-btn>
+                        <!-- <v-btn small v-if="isAdmin" icon @click="editInv(item)">
+                            <v-icon color="orange">mdi-pencil</v-icon>
+                        </v-btn> -->
+                        <!-- <v-btn small v-if="isAdmin" icon @click="resetPayment(item.id)">
+                            <v-icon color="orange">mdi-currency-usd-off</v-icon>
+                        </v-btn> -->
+                        <!-- <v-btn small icon v-if="!item.isCanceled">
+                            <v-icon @click="deleteInv(item)" color="red">mdi-delete</v-icon>
+                        </v-btn> -->
+                    </template>
+                </v-data-table>
+            </v-col>
+        </v-row>
+        <v-row>
+            <add-invoice-vue ref="addinv"></add-invoice-vue>
+        </v-row>
     </v-container>
 </template>
 
 <script>
+import AddInvoiceVue from './invoices/AddInvoice.vue'
+import {supabase} from '../supabase'
 export default {
     data: () => ({
         date: new Date().toISOString().substr(0, 7),
+        invheader: [
+            {text: 'Invoice no.', value: 'invno'},
+            {text: 'Reg no.', value: 'regno'},
+            {text: 'Invoice date.', value: 'idate'},
+            {text: 'Invoice amount($)', value: 'amount'},
+            {text: 'Balance due($)', value: 'ramount'},
+            {text: 'Actions', value: 'actions'},
+        ],
+        search: '',
         menu: false,
         modal: false,
         duraList: ['Current month', 'Last 7 days', 'All', 'Select range'],
@@ -124,6 +190,27 @@ export default {
     }),
 
     methods: {
+
+        toLocalDate(date) {
+            return new Date(+date).toLocaleDateString('en-IN')
+        },
+
+        getRegno(cid) {
+            return this.$store.getters.loadedCustomer(cid).regno
+        },
+
+        balAmount(payments, amount){
+            let tamount = 0
+            for(let i in payments) {
+                tamount = tamount + +payments[i].ramount
+            }
+            return +amount - +tamount
+        },
+
+        printInvoice(inv) {
+           this.$refs.addinv.printInvoice(inv)
+        },
+
         amount(items) {
             let amount = 0
             for(let i in items) {
@@ -201,7 +288,10 @@ export default {
 
     computed: {
         invoices() {
-            return this.$store.getters.loadedInvoices
+            let invs = this.$store.getters.allLoadedInvoices
+            return invs.filter((item) => {
+                return item.isCanceled != true
+            })
         },
 
         filtInvs() {
@@ -251,6 +341,17 @@ export default {
             } else return 0
         },
 
+        recievedPayment () {
+            let inv = this.filtInvs
+            let payments = 0
+            if(this.filtInvs) {
+                for(let i in inv) {
+                    payments = +payments + +this.checkAmount(inv[i].payments)
+                }
+                return +payments
+            } else return 0
+        },
+
         profit() {
             let sale = this.totalSales
             let purchase = this.totalPurchase
@@ -264,7 +365,51 @@ export default {
             let profit = +sale - +purchase
             let margin = (+profit / +purchase) * 100
             return Math.round(margin * 100) / 100
-        }
+        },
+
+        user() {
+            return supabase.auth.user()
+        },
+
+        customers() {
+            return this.$store.getters.loadedCustomers
+        },
+
+        vendors() {
+            return this.$store.getters.loadedVendors
+        },
+
+        invs() {
+            let invs = this.$store.getters.allLoadedInvoices
+            return invs.filter((item) => {
+                return item.isCanceled != true
+            })
+        },
+
+        fitems() {
+            const invs = this.invs
+            if(this.duration == 'All'){
+                return invs
+            } 
+            else {
+                return invs.filter((item) => {
+                    return item.idate >= this.frange  && item.idate < this.trange
+                })
+            }
+        },
+
+        // amount() {
+        //     let amount = 0
+        //     let items = this.items
+        //     for(let i in items) {
+        //         amount = +amount + +items[i].sa
+        //     }  
+        //     return amount
+        // }
+    },
+
+    components: {
+        AddInvoiceVue,
     },
 
     mounted() {
