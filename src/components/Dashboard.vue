@@ -133,12 +133,15 @@
                     <template v-slot:[`item.regno`]="{ item }">
                         {{getRegno(item.cid)}}
                     </template>
+                    <template v-slot:[`item.name`]="{ item }">
+                        {{getName(item.cid)}}
+                    </template>
                     <template v-slot:[`item.ramount`]="{ item }">
                         <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
                         <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
-                        <!-- <v-btn x-small @click="addPayment(item)" v-if="balAmount(item.payments, item.amount) != 0"  color="green">Add payment</v-btn> -->
+                        <v-btn x-small @click="addPayment(item)" v-if="balAmount(item.payments, item.amount) != 0"  color="green">Add payment</v-btn>
                         <!-- <v-btn x-small @click="addVendorPayment(item)" v-if="vBalance(item) != 0"  color="blue">Vendor payment</v-btn> -->
                         <v-btn small icon @click="printInvoice(item)">
                             <v-icon>mdi-open-in-new</v-icon>
@@ -157,6 +160,40 @@
             </v-col>
         </v-row>
         <v-row>
+            <v-dialog v-model="addPaymentDialog" max-width="600px" persistent>
+                <v-card>
+                    <v-card-title>Payment details</v-card-title>
+                    <v-card-text>
+                        <v-menu
+                            v-model="dmenu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="290px"
+                        >
+                            <template v-slot:activator="{ on }">
+                            <v-text-field 
+                            outlined
+                            v-model="idate"
+                            label="Date"
+                            v-on="on"
+                            readonly
+                            ></v-text-field>
+                            </template>
+                            <v-date-picker v-model="idate"></v-date-picker>
+                        </v-menu>
+                        <v-select :items="paymentmodes" outlined v-model="mop" label="Mode of payment"></v-select>
+                        <v-text-field v-model="ramount" outlined label="Amount recieved"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="updatePayment" color="blue">update</v-btn>
+                        <v-btn @click="clearPaydata" color="red">cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
+        <v-row>
             <add-invoice-vue ref="addinv"></add-invoice-vue>
         </v-row>
     </v-container>
@@ -171,6 +208,7 @@ export default {
         invheader: [
             {text: 'Invoice no.', value: 'invno'},
             {text: 'Reg no.', value: 'regno'},
+            {text: 'Name', value: 'name'},
             {text: 'Invoice date.', value: 'idate'},
             {text: 'Invoice amount($)', value: 'amount'},
             {text: 'Balance due($)', value: 'ramount'},
@@ -187,6 +225,13 @@ export default {
         tdate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         frange: null,
         trange: null,
+        addPaymentDialog: false,
+        ramount: null,
+        dmenu: false,
+        idate: null,
+        selectedInv: null,
+        paymentmodes: ['Bank Transfer', 'Cash', 'Cheque', 'Credit Card', 'Debit Card', 'G-Pay', 'Paytm', 'PhonePe'],
+        mop: null,
     }),
 
     methods: {
@@ -197,6 +242,10 @@ export default {
 
         getRegno(cid) {
             return this.$store.getters.loadedCustomer(cid).regno
+        },
+
+        getName(cid) {
+            return this.$store.getters.loadedCustomer(cid).name
         },
 
         balAmount(payments, amount){
@@ -283,6 +332,32 @@ export default {
                 lastThree = ',' + lastThree;
             let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + deciPoints
             return res
+        },
+
+        addPayment(item) {
+            this.addPaymentDialog = true
+            this.selectedInv = item
+        },
+
+        updatePayment() {
+            let items = this.selectedInv.payments
+            let payments = [
+                ...items,
+                {date: new Date(this.idate).getTime(), mop: this.mop, ramount: this.ramount}
+            ]
+            supabase.from('invoices').update({payments: payments}).match({id: this.selectedInv.id})
+            .then(() => {
+                this.$store.dispatch('getInvoices')
+                this.$store.dispatch('createAlert',{type: 'info', message: 'Invoice updated'})
+                this.clearPaydata()
+            })
+        },
+
+        clearPaydata() {
+            this.addPaymentDialog = false
+            this.idate = null
+            this.mop = null
+            this.ramount = null
         },
     },
 

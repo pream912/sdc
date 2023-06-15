@@ -143,18 +143,18 @@ export default new Vuex.Store({
             }
         },
 
-        async getAllInvoices ({commit, dispatch}) {
-            const { data, error } = await supabase.from('invoices').select('*')
-            if(data) {
-                let filtInvs = data.filter((item) => {
-                    return item.deleted != true
-                })
-                commit('SET_ALLINVS', filtInvs)
-            }
-            if(error) {
-                dispatch('createAlert',{type: 'error', message: error.message})
-            }
-        },
+        // async getAllInvoices ({commit, dispatch}) {
+        //     const { data, error } = await supabase.from('invoices').select('*')
+        //     if(data) {
+        //         let filtInvs = data.filter((item) => {
+        //             return item.isCanceled != true
+        //         })
+        //         commit('SET_ALLINVS', filtInvs)
+        //     }
+        //     if(error) {
+        //         dispatch('createAlert',{type: 'error', message: error.message})
+        //     }
+        // },
 
         async getUsers ({commit, dispatch}) {
             const { data, error } = await supabase.from('users').select('*')

@@ -66,6 +66,9 @@
                     <template v-slot:[`item.regno`]="{ item }">
                         {{getRegno(item.cid)}}
                     </template>
+                    <template v-slot:[`item.name`]="{ item }">
+                        {{getName(item.cid)}}
+                    </template>
                     <template v-slot:[`item.ramount`]="{ item }">
                         <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
                         <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
@@ -166,6 +169,7 @@ export default {
         invheader: [
             {text: 'Invoice no.', value: 'invno'},
             {text: 'Reg no.', value: 'regno'},
+            {text: 'Name.', value: 'name'},
             {text: 'Invoice date.', value: 'idate'},
             {text: 'Invoice amount($)', value: 'amount'},
             {text: 'Balance due($)', value: 'ramount'},
