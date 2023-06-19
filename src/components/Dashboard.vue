@@ -118,7 +118,7 @@
                 </v-card>
             </v-col>
         </v-row>
-        <v-row>
+        <!-- <v-row>
             <v-col cols="4">
                 <v-text-field filled label="Search" v-model="search" append-icon="mdi-magnify"></v-text-field>
             </v-col>
@@ -142,19 +142,19 @@
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-btn x-small @click="addPayment(item)" v-if="balAmount(item.payments, item.amount) != 0"  color="green">Add payment</v-btn>
-                        <!-- <v-btn x-small @click="addVendorPayment(item)" v-if="vBalance(item) != 0"  color="blue">Vendor payment</v-btn> -->
+                         <v-btn x-small @click="addVendorPayment(item)" v-if="vBalance(item) != 0"  color="blue">Vendor payment</v-btn>
                         <v-btn small icon @click="printInvoice(item)">
                             <v-icon>mdi-open-in-new</v-icon>
                         </v-btn>
-                        <!-- <v-btn small v-if="isAdmin" icon @click="editInv(item)">
+                        <v-btn small v-if="isAdmin" icon @click="editInv(item)">
                             <v-icon color="orange">mdi-pencil</v-icon>
-                        </v-btn> -->
-                        <!-- <v-btn small v-if="isAdmin" icon @click="resetPayment(item.id)">
+                        </v-btn> 
+                        <v-btn small v-if="isAdmin" icon @click="resetPayment(item.id)">
                             <v-icon color="orange">mdi-currency-usd-off</v-icon>
-                        </v-btn> -->
-                        <!-- <v-btn small icon v-if="!item.isCanceled">
+                        </v-btn> 
+                        <v-btn small icon v-if="!item.isCanceled">
                             <v-icon @click="deleteInv(item)" color="red">mdi-delete</v-icon>
-                        </v-btn> -->
+                        </v-btn>
                     </template>
                 </v-data-table>
             </v-col>
@@ -195,12 +195,11 @@
         </v-row>
         <v-row>
             <add-invoice-vue ref="addinv"></add-invoice-vue>
-        </v-row>
+        </v-row> -->
     </v-container>
 </template>
 
 <script>
-import AddInvoiceVue from './invoices/AddInvoice.vue'
 import {supabase} from '../supabase'
 export default {
     data: () => ({
@@ -481,10 +480,6 @@ export default {
         //     }  
         //     return amount
         // }
-    },
-
-    components: {
-        AddInvoiceVue,
     },
 
     mounted() {
