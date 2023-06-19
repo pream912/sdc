@@ -63,12 +63,12 @@
                     <template v-slot:[`item.idate`]="{ item }">
                         {{toLocalDate(item.idate)}}
                     </template>
-                    <template v-slot:[`item.regno`]="{ item }">
+                    <!-- <template v-slot:[`item.regno`]="{ item }">
                         {{getRegno(item.cid)}}
                     </template>
                     <template v-slot:[`item.name`]="{ item }">
                         {{getName(item.cid)}}
-                    </template>
+                    </template> -->
                     <template v-slot:[`item.ramount`]="{ item }">
                         <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
                         <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
@@ -154,7 +154,7 @@ export default {
         dialog: false,
         duration: 'Current month',
         delInvDialog: false,
-        search: '',
+        search: null,
         dialog1: false,
         id: null,
         addPaymentDialog: false,
@@ -168,12 +168,12 @@ export default {
         items: [],
         invheader: [
             {text: 'Invoice no.', value: 'invno'},
-            {text: 'Reg no.', value: 'regno'},
+            {text: 'Reg no.', value: 'regno', filterable: true},
             {text: 'Name.', value: 'name'},
             {text: 'Invoice date.', value: 'idate'},
-            {text: 'Invoice amount($)', value: 'amount'},
-            {text: 'Balance due($)', value: 'ramount'},
-            {text: 'Actions', value: 'actions'},
+            {text: 'Invoice amount($)', value: 'amount', filterable: false},
+            {text: 'Balance due($)', value: 'ramount', filterable: false},
+            {text: 'Actions', value: 'actions', filterable: false},
         ],
         frange: null,
         trange: null,
@@ -412,14 +412,24 @@ export default {
 
         fitems() {
             const invs = this.invs
+            let finvs = []
+            let sinvs = []
             if(this.duration == 'All'){
-                return invs
+                sinvs = invs
             } 
             else {
-                return invs.filter((item) => {
+                sinvs = invs.filter((item) => {
                     return item.idate >= this.frange  && item.idate < this.trange
                 })
             }
+            for(let i in sinvs) {
+                finvs.push({
+                    regno: this.getRegno(sinvs[i].cid),
+                    name: this.getName(sinvs[i].cid),
+                    ...sinvs[i]
+                })
+            }
+            return finvs
         },
 
         amount() {

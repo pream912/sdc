@@ -386,7 +386,7 @@ export default {
             if(this.filtInvs) {
                 let tsale = 0 
                 for(let i in inv) {
-                    tsale = +tsale + +this.amount(inv[i].items)
+                    tsale = +tsale + +inv[i].amount
                 }
                 return tsale
             }else return 0
@@ -409,7 +409,7 @@ export default {
             let payments = 0
             if(this.filtInvs) {
                 for(let i in inv) {
-                    tsale = +tsale + +this.amount(inv[i].items)
+                    tsale = +tsale + +inv[i].amount
                     payments = +payments + +this.checkAmount(inv[i].payments)
                 }
                 return +tsale - +payments

@@ -57,12 +57,12 @@
                     <template v-slot:[`item.idate`]="{ item }">
                         {{toLocalDate(item.idate)}}
                     </template>
-                    <template v-slot:[`item.regno`]="{ item }">
+                    <!-- <template v-slot:[`item.regno`]="{ item }">
                         {{getRegno(item.cid)}}
                     </template>
                     <template v-slot:[`item.name`]="{ item }">
                         {{getName(item.cid)}}
-                    </template>
+                    </template> -->
                     <template v-slot:[`item.ramount`]="{ item }">
                         <div v-if="balAmount(item.payments, item.amount) != 0" class="red--text">{{balAmount(item.payments, item.amount)}}</div>
                         <div v-else class="green--text">{{balAmount(item.payments, item.amount)}}</div>
@@ -409,7 +409,11 @@ export default {
             let finv = []
             for(let i in invs) {
                 if(+this.balAmount(invs[i].payments, invs[i].amount) != 0) {
-                    finv.push(invs[i])
+                    finv.push({
+                        regno: this.getRegno(invs[i].cid),
+                        name: this.getName(invs[i].cid),
+                        ...invs[i]
+                    })
                 }
             }
             return finv

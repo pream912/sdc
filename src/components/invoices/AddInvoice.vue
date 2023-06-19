@@ -32,7 +32,7 @@
                         </v-toolbar>
                         <v-card-text>
                             <v-row class="pa-3">
-                                <v-col cols="5">
+                                <v-col cols="3">
                                     <v-autocomplete v-on:keyup="keyEvent" outlined label="Customer name" item-value="id" v-model="cid" item-text="name" :items="customers">
                                         <template v-slot:item="data">
                                             <template>
@@ -44,7 +44,7 @@
                                         </template>
                                     </v-autocomplete>
                                 </v-col>
-                                <v-col cols="5">
+                                <v-col cols="3">
                                     <v-autocomplete v-on:keyup="keyEvent" outlined label="Reg number" item-value="id" v-model="cid" item-text="regno" :items="customers">
                                         <template v-slot:item="data">
                                             <template>
@@ -56,19 +56,7 @@
                                         </template>
                                     </v-autocomplete>
                                 </v-col>
-                                <v-col cols="2">
-                                    <v-btn @click="addCustomer" color="green">Add customer</v-btn>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-text-field v-model="famount" readonly outlined label="Amount"></v-text-field>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-text-field :rules="numRule" v-model="ramount" outlined label="Amount recieved"></v-text-field>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select :items="paymentmodes" outlined v-model="mop" label="Mode of payment"></v-select>
-                                </v-col>
-                                <v-col cols="6">
+                                <v-col cols="3">
                                     <v-menu
                                         v-model="dmenu"
                                         :close-on-content-click="false"
@@ -89,6 +77,9 @@
                                         </template>
                                         <v-date-picker @input="dmenu = false" v-model="idate"></v-date-picker>
                                     </v-menu>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-btn @click="addCustomer" color="green">Add customer</v-btn>
                                 </v-col>
                             </v-row>
                             <v-row lazy-validation class="pa-3">
@@ -193,6 +184,15 @@
                                 <v-spacer></v-spacer>
                                 <v-col v-if="discount" cols="4">
                                     <v-text-field outlined label="Final amount" v-model="famount"></v-text-field>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-text-field v-model="famount" readonly outlined label="Amount"></v-text-field>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-text-field :rules="numRule" v-model="ramount" outlined label="Amount recieved"></v-text-field>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-select :items="paymentmodes" outlined v-model="mop" label="Mode of payment"></v-select>
                                 </v-col>
                             </v-row>
                         </v-card-text>
