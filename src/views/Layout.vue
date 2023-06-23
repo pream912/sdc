@@ -36,10 +36,18 @@
                 </v-list-item>
                 <v-list-item link to="/ppayment">
                     <v-list-item-icon>
-                        <v-icon> mdi-cash-register </v-icon>
+                        <v-icon> mdi-account-clock </v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
                         <v-list-item-title>Pending payments</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+                <v-list-item link to="/transactions">
+                    <v-list-item-icon>
+                        <v-icon> mdi-cash-multiple </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>Transactions</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
                 <!-- <v-list-group

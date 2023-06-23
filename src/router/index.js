@@ -4,6 +4,7 @@ import Customers from '../components/customers/Customers.vue'
 import Services from '../components/services/Services.vue'
 import Invoice from '../components/invoices/Invoice.vue'
 import Pending from '../components/invoices/PendingPayments.vue'
+import Transactions from '../components/invoices/Transactions.vue'
 import Users from '../components/Users.vue'
 import Dashboard from '../components/Dashboard'
 import Reports from '../components/Reports'
@@ -37,6 +38,10 @@ const routes = [
   {
     path: '/ppayment',
     component: Pending
+  },
+  {
+    path: '/transactions',
+    component: Transactions
   },
   {
     path: '/users',
