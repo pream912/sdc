@@ -805,7 +805,7 @@ export default {
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
                 pageSize: 'A5',
                 pageOrientation: 'portrait',
-                pageMargins: [ 20, 10, 20, 10 ],
+                pageMargins: [ 20, 10, 20, 20 ],
                 footer: {
                     columns: [
                         { text: this.footer, alignment: 'center', fontSize: 7, bold: true }
