@@ -51,6 +51,13 @@ export default new Vuex.Store({
                 })
             }
         },
+        loadedInvoice (state) {
+            return (invId) => {
+                return state.invoices.find((inv) => {
+                    return inv.id === invId
+                })
+            }
+        },
         loadedInvoices (state) {
             return state.invoices
         },
