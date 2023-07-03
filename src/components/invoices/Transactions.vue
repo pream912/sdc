@@ -71,10 +71,19 @@
             <v-col cols="12">
                 <v-data-table
                 :headers="invheader"
+                item-key="sno"
                 :search="search"
                 :items="filtInvs">
                     <template v-slot:[`item.date`]="{ item }">
                         {{toLocalDate(item.date)}}
+                    </template>
+                    <template v-slot:[`item.actions`]="{ item }">
+                        <v-btn small v-if="isAdmin" icon @click="editTrans(item)">
+                            <v-icon color="orange">mdi-pencil</v-icon>
+                        </v-btn>
+                        <v-btn small icon v-if="isAdmin" >
+                            <v-icon @click="deleteTrans(item)" color="red">mdi-delete</v-icon>
+                        </v-btn>
                     </template>
                 </v-data-table>
             </v-col>
@@ -107,8 +116,19 @@
                         <v-text-field v-model="ramount" outlined label="Amount recieved"></v-text-field>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn @click="updatePayment" color="blue">update</v-btn>
-                        <v-btn @click="clearPaydata" color="red">cancel</v-btn>
+                        <v-btn @click="updateTrans" color="blue">update</v-btn>
+                        <v-btn @click="clear" color="red">cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
+        <v-row>
+            <v-dialog v-model="delTransDialog" max-width="600">
+                <v-card>
+                    <v-card-title>Are you sure to delete the selected transaction?</v-card-title>
+                    <v-card-actions>
+                        <v-btn @click="confirmDeleteTrans" color="green">Yes</v-btn>
+                        <v-btn @click="delTransDialog = false" color="">No</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -123,7 +143,7 @@ export default {
         duraList: ['Current month', 'Last 7 days', 'All', 'Select range'],
         dialog: false,
         duration: 'Select range',
-        delInvDialog: false,
+        delTransDialog: false,
         search: null,
         dialog1: false,
         id: null,
@@ -143,6 +163,7 @@ export default {
             {text: 'Receipt date.', value: 'date'},
             {text: 'Amount', value: 'ramount', filterable: false},
             {text: 'Mode of payment', value: 'mop', filterable: false},
+            {text: '', value: 'actions'}
         ],
         frange: null,
         trange: null,
@@ -173,7 +194,7 @@ export default {
         itemEditing: false,
         invEditing: false,
         itemIdex: null,
-        selectedInv: {},
+        selectedItem: {},
         filtInvs: [],
     }),
 
@@ -187,9 +208,7 @@ export default {
         getVname(vendor) {
             return this.$store.getters.loadedVendor(vendor).name
         },
-        editInv(inv) {
-            this.$refs.addinv.editInv(inv)
-        },
+
         printInvoice(inv) {
            this.$refs.addinv.printInvoice(inv)
         },  
@@ -201,6 +220,68 @@ export default {
         deleteInv(inv)  {
             this.selectedInv = inv
             this.delInvDialog = true
+        },
+
+        editTrans(item) {
+            this.idate = new Date(item.date).toISOString().substr(0,10)
+            this.ramount = item.ramount
+            this.mop = item.mop
+            this.selectedItem = item
+            this.addPaymentDialog = true
+            console.log(item);
+        },
+
+        updateTrans() {
+            let inv = this.$store.getters.loadedInvoice(this.selectedItem.id)
+            let payments = inv.payments
+            let index = this.selectedItem.index
+            payments.splice(index, 1)
+            payments.push({
+                date: new Date(this.idate).getTime(),
+                mop: this.mop,
+                ramount: this.ramount
+            })
+            console.log(payments)
+            const uinv = {
+                payments: payments
+            }
+            supabase.from('invoices').update(uinv).eq('id', this.selectedItem.id)
+            .then((res) => {
+                if(res.data) {
+                    this.$store.dispatch('createAlert',{type: 'info', message: 'Invoice updated!'})
+                    this.$store.dispatch('getInvoices')
+                    this.clear()
+                }
+                if(res.error) {
+                    this.$store.dispatch('createAlert',{type: 'error', message: res.error.message})
+                }
+            })
+        },
+
+        deleteTrans(item) {
+            this.selectedItem = item
+            this.delTransDialog = true
+        },
+
+        confirmDeleteTrans() {
+            let inv = this.$store.getters.loadedInvoice(this.selectedItem.id)
+            let payments = inv.payments
+            let index = this.selectedItem.index
+            payments.splice(index, 1)
+            const uinv = {
+                payments: payments
+            }
+            supabase.from('invoices').update(uinv).eq('id', this.selectedItem.id)
+            .then((res) => {
+                if(res.data) {
+                    this.$store.dispatch('createAlert',{type: 'info', message: 'Invoice updated!'})
+                    this.$store.dispatch('getInvoices')
+                    this.clear()
+                }
+                if(res.error) {
+                    this.$store.dispatch('createAlert',{type: 'error', message: res.error.message})
+                }
+            })
         },
 
         checkAmount(payments) {
@@ -274,11 +355,13 @@ export default {
             })
         },
 
-        clearPaydata() {
+        clear() {
             this.addPaymentDialog = false
             this.idate = null
             this.mop = null
             this.ramount = null
+            this.selectedItem = {}
+            this.delTransDialog = false
         },
         dateFilters() {
             this.tmenu = false
@@ -317,14 +400,19 @@ export default {
             }
             let pays = []
             const invs = this.invs
+            let sno = 0
             for(let i in invs) {
                 let trans = invs[i].payments
                 for(let j in trans) {
+                    sno = +sno + 1
                     pays.push({
+                        sno: sno,
+                        id: invs[i].id,
                         invno: invs[i].invno,
                         cname: this.getName(invs[i].cid),
                         regno: this.getRegno(invs[i].cid),
-                        ...trans[j]
+                        ...trans[j],
+                        index: j
                     })
                 }
             }

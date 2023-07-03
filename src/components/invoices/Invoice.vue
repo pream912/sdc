@@ -129,7 +129,7 @@
         <v-row>
             <v-dialog v-model="delInvDialog" max-width="600">
                 <v-card>
-                    <v-card-title>Are you sure to cancel the invoice?</v-card-title>
+                    <v-card-title>Are you sure to delete the selected invoice?</v-card-title>
                     <v-card-actions>
                         <v-btn @click="deleteInvoice" color="green">Yes</v-btn>
                         <v-btn @click="delInvDialog = false" color="">No</v-btn>
