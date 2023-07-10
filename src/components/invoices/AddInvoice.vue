@@ -803,7 +803,10 @@ export default {
 
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
-                pageSize: 'A5',
+                pageSize: {
+                    width: 595.28,
+                    height: 'auto'
+                },
                 pageOrientation: 'portrait',
                 pageMargins: [ 20, 10, 20, 20 ],
                 footer: {
