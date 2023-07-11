@@ -804,7 +804,7 @@ export default {
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
                 pageSize: 'A5',
-                pageMargins: [ 20, 10, 20, 20 ],
+                pageMargins: [ 20, 10, 20, 30 ],
                 pageOrientation: 'portrait',
                 footer: {
                     columns: [
