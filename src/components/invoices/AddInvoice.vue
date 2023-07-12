@@ -614,7 +614,7 @@ export default {
                 },
                 
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 555, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                 },
                 {
                     columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
@@ -653,7 +653,7 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 555, y2: 0, lineWidth: 1 } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 1 } ]
                 },
                 {
                     layout: 'noBorders',
@@ -665,7 +665,7 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 555, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                 },
                 {
                     columns: [
@@ -758,7 +758,7 @@ export default {
                     },
                     
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 555, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                     },
                     {
                         columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
@@ -788,7 +788,7 @@ export default {
                         ]
                     },
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 555, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
                     },
                     ' '
                 )
@@ -803,11 +803,9 @@ export default {
 
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
-                pageSize: {
-                    width: 595,
-                    height: 420
-                },
-                pageMargins: [ 20, 10, 20, 20 ],
+                pageSize: 'A5',
+                pageMargins: [ 20, 10, 20, 30 ],
+                pageOrientation: 'portrait',
                 footer: {
                     columns: [
                         { text: this.footer, alignment: 'center', fontSize: 7, bold: true }
