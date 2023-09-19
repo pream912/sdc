@@ -804,12 +804,13 @@ export default {
             var docDefinition = { 
                 watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
                 pageSize: 'A5',
-                pageMargins: [ 20, 10, 20, 30 ],
+                pageMargins: [ 20, 10, 20, 40 ],
                 pageOrientation: 'portrait',
                 footer: {
                     columns: [
                         { text: this.footer, alignment: 'center', fontSize: 7, bold: true }
-                    ]
+                    ],
+                    margin: [ 20, 0, 20, 40 ]
                 },
                 content: content,
                 styles: {
