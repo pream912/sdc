@@ -504,15 +504,8 @@ export default {
             let tamount = 0
             let bamount = 0
             let tramount = 0
-            let isCrown = false
-            let regex = /\bCROWN\b/
-            let containsCrown = false
 
             for(let i in items) {
-                containsCrown = regex.test(items[i].name)
-                if(containsCrown) {
-                    isCrown = true
-                }
                 billContent.push([
                     {text: +i + 1, alignment: 'center', fontSize: 7}, 
                     {text: this.getSname(items[i].sid), alignment: 'left', fontSize: 7}, 
@@ -702,24 +695,6 @@ export default {
                     },]
                 },
             ]
-            if(isCrown) {
-                content.push(
-                    {text: 'TERMS AND CONDITIONS FOR DENTAL CROWN WARRANTY', fontSize: 8, bold:true, pageBreak: 'before'},
-                    {
-                        columns:[
-                            {stack:[
-                                '1. SMILE DENTAL CARE is just a platform connecting the concerned lab which is providing warranty for their work to the patients.',
-                                '2. This warranty from concerned lab to the patients does not cover any kind of damage to accident, negligence and usage which is other than normal chewing actions. Our guarantee ceases at the replacement of the damaged work. Compensations or claims of any  kind due to breakage of the  prosthesis will not be entertained.',
-                                '3. The claim should be accompanied with the certificate of the doctor, original damaged prosthesis. Fresh tooth models of both the jaws and including the warranty certificate should be produced for the warranty claim. However, the concerned lab hold all the rights to reject any claim which is not accompanied  with the necessary documents or models or old prosthesis.',
-                                '4. The warranty does not cover any damage to the supporting & surrounding structures like tooth, gingiva or bone.',
-                                '5. The patient should follow the instructions & undergo periodic checkups once in six months or as decided by the dentist.',
-                                '6. The warranty does not cover the doctor`s consultation, radiograph, further treatments proceedings, modifications, model fabrication, temporization, transportation  and fixing charges.',
-                                '7. Any additions and omissions  from the original work will not be permitted. Warranty regarding extensions, retention, occlusion contact etc is given only for perfection of the work in the given model. The shape and appearance of the fresh prostheses may not be exactly  the same as the initial prosthesis.'
-                            ], alignment: 'left', fontSize:8}
-                        ]
-                    }
-                )
-            }
 
             if(this.xrayDetails.length!=0) {
                 content.push(
@@ -802,7 +777,7 @@ export default {
             }
 
             var docDefinition = { 
-                watermark: { text: 'SDC', opacity: 0.02, bold: true, italics: false  },
+                watermark: { text: 'SDC', opacity: 0.09, bold: true, italics: false  },
                 pageSize: 'A5',
                 pageMargins: [ 20, 10, 20, 40 ],
                 pageOrientation: 'portrait',
