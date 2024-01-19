@@ -511,8 +511,8 @@ export default {
                     {text: this.getSname(items[i].sid), alignment: 'left', fontSize: 7}, 
                     {text: items[i].description, alignment: 'left', fontSize: 7}, 
                     {text: items[i].qt, alignment: 'center', fontSize: 7},
-                    {text: this.decimalRound(this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
-                    {text: this.decimalRound(+items[i].qt * +this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
+                    {text: this.decimalRound(items[i].rate), alignment: 'right', fontSize: 7},
+                    {text: this.decimalRound(+items[i].qt * +items[i].rate), alignment: 'right', fontSize: 7},
                 ])
                 tamount = +tamount + +items[i].amount
             }
