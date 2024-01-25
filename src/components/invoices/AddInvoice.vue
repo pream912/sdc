@@ -272,7 +272,8 @@
                     <v-card-text>
                         <v-row>
                             <v-col cols="12">
-                                <v-textarea outlined label="Imgae Base64" v-model="imgBase"></v-textarea>
+                                <!-- <v-textarea outlined label="Imgae Base64" v-model="imgBase"></v-textarea> -->
+                                <v-file-input v-model="file" label="Select X-ray image" accept="image/png, image/jpeg, image/bmp"></v-file-input>
                             </v-col>
                             <v-col>
                                 <v-text-field outlined label="Caption" v-model="caption"></v-text-field>
@@ -384,6 +385,7 @@ export default {
         qt: 1,
         rate: null,
         discount: null,
+        file: null
     }),
 
     methods: {
@@ -427,18 +429,27 @@ export default {
             this.treatDialog = false
             this.teIndex = null
         },
-        addXray() {
+        async addXray() {
+            let base64 = await this.blobToBase64(this.file)
             this.xrayDetails.push({
-                imgBase: this.imgBase,
+                imgBase: base64,
                 caption: this.caption
             })
             this.clearXray()
         },
+        blobToBase64(blob) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        },
+
         deleteXray(index) {
             this.xrayDetails.splice(index, 1)
         },
         clearXray() {
-            this.imgBase = null
+            this.file = null
             this.caption = null
             this.xrayDialog = false
         },
@@ -511,8 +522,8 @@ export default {
                     {text: this.getSname(items[i].sid), alignment: 'left', fontSize: 7}, 
                     {text: items[i].description, alignment: 'left', fontSize: 7}, 
                     {text: items[i].qt, alignment: 'center', fontSize: 7},
-                    {text: this.decimalRound(this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
-                    {text: this.decimalRound(+items[i].qt * +this.retRate(items[i].sid)), alignment: 'right', fontSize: 7},
+                    {text: this.decimalRound(items[i].rate), alignment: 'right', fontSize: 7},
+                    {text: this.decimalRound(+items[i].qt * items[i].rate), alignment: 'right', fontSize: 7},
                 ])
                 tamount = +tamount + +items[i].amount
             }
