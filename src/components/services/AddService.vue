@@ -15,6 +15,9 @@
                             <v-col cols="6">
                                 <v-text-field v-model="description" label="Description"></v-text-field>
                             </v-col>
+                            <v-col cols="6">
+                                <v-checkbox v-model="med_included" label="Medicines Included"></v-checkbox>
+                            </v-col>
                         </v-row>
                     </v-card-text>
                     <v-card-actions>
@@ -40,7 +43,8 @@ export default {
         loading: false, 
         search: '',
         id: null,
-        editing: false
+        editing: false,
+        med_included: false
     }),
     methods: {
         open() {
@@ -50,6 +54,7 @@ export default {
             this.name = item.name
             this.price = item.price
             this.description = item.description
+            this.med_included = item.med_included
             this.editing = true
             this.dialog = true
             this.id = item.id
@@ -60,6 +65,7 @@ export default {
                 name: this.name,
                 price: this.price,
                 description: this.description,
+                med_included: this.med_included,
                 createdby: this.user.id
             }
             supabase.from('services').insert([
@@ -84,7 +90,8 @@ export default {
             const service = {
                 name: this.name,
                 price: +this.price,
-                description: this.description
+                description: this.description,
+                med_included: this.med_included
             }
             console.log(service);
             supabase.from('services').update(service).eq('id', this.id)
@@ -106,6 +113,7 @@ export default {
             this.name = null
             this.price = null
             this.description = null
+            this.med_included = false
             this.dialog = null
         },
 

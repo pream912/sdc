@@ -548,13 +548,13 @@ export default {
                     {text:`₹${this.decimalRound(+this.checkAmount(payments))}`, alignment: 'right', fontSize: 7, bold: true}
                 ],
                 [{},{},{},{},
-                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#ab2020'},
-                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#ab2020'}
+                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#01021c'},
+                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#01021c'}
                 ],
             )
 
             paymentDetails.push(
-                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#ab2020', bold: true, colSpan: 2},{},{}],
+                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#01021c', bold: true, colSpan: 2},{},{}],
                 [{},{},{}],
                 [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
@@ -568,7 +568,7 @@ export default {
 
             if(treat.length!=0) {
                 treatmentDetails.push(
-                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#ab2020', bold: true, colSpan: 2},{},{}],
+                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#01021c', bold: true, colSpan: 2},{},{}],
                     [{},{},{}]
                 )
                 for(let i in treat) {
@@ -618,10 +618,10 @@ export default {
                 },
                 
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
                 },
                 {
-                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
+                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#01021c', bold: true, alignment: 'center', margin: 5}]
                 },
                 {
                     columns: [
@@ -669,7 +669,7 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
                 },
                 {
                     columns: [
@@ -744,10 +744,10 @@ export default {
                     },
                     
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
                     },
                     {
-                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#ab2020', bold: true, alignment: 'center', margin: 5}]
+                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#01021c', bold: true, alignment: 'center', margin: 5}]
                     },
                     {
                         columns: [
@@ -774,7 +774,7 @@ export default {
                         ]
                     },
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#ab2020' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
                     },
                     ' '
                 )
@@ -802,7 +802,7 @@ export default {
                 styles: {
                     table: {
                         fontSize: 7,
-                        hLineColor: '#ab2020'
+                        hLineColor: '#01021c'
                     },
                     tableStyle: {
                         margin: 0,
