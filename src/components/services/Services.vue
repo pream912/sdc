@@ -60,6 +60,7 @@ export default {
         headers: [
             {text: 'ID', value: 'id'},
             {text: 'Name', value: 'name'},
+            {text: 'Medicine Included', value: 'med_included'},
             {text: 'Price (Rs.)', value: 'price'},
             {text: 'Actions', value: 'actions'}
         ],

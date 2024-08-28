@@ -27,7 +27,7 @@
                             </v-btn>
                             {{vendor}}
                             <v-spacer></v-spacer>
-                            <v-btn v-if="!invEditing" :loading="loading" color="green" @click="saveInv">Save</v-btn>
+                            <v-btn v-if="!invEditing" :loading="loading" color="green" @click="presDialog = true">Save</v-btn>
                             <v-btn v-else color="blue" :loading="loading" @click="updateInv">Update</v-btn>
                         </v-toolbar>
                         <v-card-text>
@@ -304,6 +304,49 @@
                 </v-card>
             </v-dialog>
         </v-row>
+        <v-row>
+            <v-dialog v-model="presDialog" max-width="750px">
+                <v-card>
+                    <v-card-title>Add Prescription</v-card-title>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols>
+                                <v-autocomplete @change="getBatches" outlined label="Medicine" item-value="id" v-model="mid" item-text="brand_name" :items="meds"> </v-autocomplete>
+                            </v-col>
+                            <v-col>
+                                <v-autocomplete label="Batch" outlined v-model="batch" item-value="batch_no" item-text="batch_no" :items="batches">
+                                    <template v-slot:item="data">
+                                        <template>
+                                            <v-list-item-content>
+                                                <v-list-item-title> {{ data.item.batch_no }} </v-list-item-title>
+                                                <v-list-item-subtitle> {{ data.item.expiry }} </v-list-item-subtitle>
+                                            </v-list-item-content>
+                                        </template>
+                                    </template>
+                                </v-autocomplete>
+                            </v-col>
+                            <v-col>
+                                <v-select :items="['OD','BD','TDS']" outlined v-model="dosage" label="Dosage"></v-select>
+                            </v-col>
+                            <v-col>
+                                <v-text-field outlined label="Days" v-model="days"></v-text-field>
+                            </v-col>
+                            <v-col> <v-btn @click="addPItem" color="green">Add Item</v-btn>  </v-col>
+                        </v-row>
+                        <v-divider class="pa-5"></v-divider>
+                        <v-row v-for="(item, index) in pitems" :key="item.mid">
+                            <v-col>  {{ item.name  }} </v-col>
+                            <v-col>  {{ item.qt  }} units </v-col>
+                            <v-col> <v-btn @click="clearPItem(index)" icon small> <v-icon color="red">mdi-delete</v-icon> </v-btn> </v-col>
+                        </v-row>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn v-if="!medIncluded" @click="saveInv" color="orange">Skip</v-btn>
+                        <v-btn v-if="pitems.length" @click="saveInv" color="green">Add Prescription</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-row>
     </v-container>
 </template>
 
@@ -385,7 +428,14 @@ export default {
         qt: 1,
         rate: null,
         discount: null,
-        file: null
+        file: null,
+        presDialog: false,
+        mid: null,
+        dosage: null,
+        days: null,
+        batches: [],
+        pitems: [],
+        batch: null
     }),
 
     methods: {
@@ -393,7 +443,96 @@ export default {
             if(e.ctrlKey && e.key == 'q') {
                this.addCustomer()
             }
-        },  
+        }, 
+        getBatches() {
+            this.batches = this.$store.getters.loadedMed(this.mid).store
+        },
+        addPItem() {
+            
+            let med = this.$store.getters.loadedMed(this.mid)
+            let store = med.store
+            // let qt = this.dosage === 'OD'?1:2
+            let qt = 0
+            if(this.dosage == 'OD') {
+                qt = 1 * +this.days
+            } else if(this.dosage == 'BD') {
+                qt = 2 * +this.days
+            } else {
+                qt = 3 * +this.days
+            }
+            
+            store.sort((a,b) => a.expiry_stamp-b.expiry_stamp)
+            let sel_item = store.find((item) => {return item.batch_no == this.batch} )
+            let amount = this.decimalRound( (sel_item.mrp / sel_item.pac) * +qt )
+            let iamount = (sel_item.mrp / sel_item.pac) * +qt 
+            let gst = this.decimalRound( amount - (amount * (100/(100 + +med.gst))) )
+            let rate = this.decimalRound(amount * (100/(100 + +med.gst)))
+            let sgst = this.decimalRound( +gst / 2)
+            let cgst = this.decimalRound( +gst / 2)
+            const item = {
+                name: med.brand_name,
+                mid: this.mid,
+                description: this.description,
+                qt: qt,
+                rate: rate,
+                mrp: this.decimalRound(sel_item.mrp / sel_item.pac),
+                sgst: sgst,
+                cgst: cgst,
+                amount: amount,
+                hsn: med.hsn,
+                batch: sel_item.batch_no,
+                expiry: sel_item.expiry,
+                iamount: iamount
+            }
+            this.pitems.push(item)
+            this.mid = null
+            this.batches = []
+            this.days = null
+            this.dosage = null
+        },
+
+        clearPItem(index) {
+            this.pitems.splice(index, 1)
+        },
+
+        async savePInv() {
+            this.loading = true
+            let ta = 0
+            for(let i in this.pitems) {
+                ta = +ta + +this.pitems[i].iamount
+            }
+            const payment = [{
+                date: new Date(this.idate).getTime(),
+                mop: this.mop,
+                ramount: ta
+            }]
+            const inv = {
+                cid: this.cid,
+                idate: new Date(this.idate).getTime(),
+                amount: ta,
+                createdby: this.user.id,
+                payments: payment,
+                discount: this.discount,
+                cus_gst: null,
+                items: this.pitems,
+            }
+            console.log(inv);
+            
+            const { data, error } = await supabase.from('invoices_pharma').insert([
+                inv
+            ])
+            console.log(data, error)
+            if(data) {
+                this.$store.dispatch('createAlert',{type: 'success', message: 'Pharmacy Invoice created'})
+                this.clear()
+            }
+            if(error) {
+                this.$store.dispatch('createAlert',{type: 'error', message: error.message})
+                console.log(error.message);
+                this.clear()
+            }
+        },
+
         addTreatment() {
             this.treatDetails.push({
                 date: new Date(this.tredate).getTime(),
@@ -548,13 +687,13 @@ export default {
                     {text:`₹${this.decimalRound(+this.checkAmount(payments))}`, alignment: 'right', fontSize: 7, bold: true}
                 ],
                 [{},{},{},{},
-                    {text:'Balance Due', alignment: 'right', fontSize: 7, bold: true, color: '#01021c'},
-                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#01021c'}
+                    {text:'Balance Due', alignment: 'right', fontSize: 8, bold: true, color: '#d7310e'},
+                    {text:`₹${this.decimalRound(+bamount)}`, alignment: 'right', fontSize: 7, bold: true, color: '#d7310e'}
                 ],
             )
 
             paymentDetails.push(
-                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#01021c', bold: true, colSpan: 2},{},{}],
+                [{text:'PAYMENT DETAILS', alignment: 'left', fontSize: 9, color: '#d7310e', bold: true, colSpan: 2},{},{}],
                 [{},{},{}],
                 [{text:'INR(₹) Paid', alignment: 'left', fontSize: 7},{},{}]
             )
@@ -568,7 +707,7 @@ export default {
 
             if(treat.length!=0) {
                 treatmentDetails.push(
-                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#01021c', bold: true, colSpan: 2},{},{}],
+                    [{text:'TREATMENT DETAILS', alignment: 'left', fontSize: 9, color: '#d7310e', bold: true, colSpan: 2},{},{}],
                     [{},{},{}]
                 )
                 for(let i in treat) {
@@ -618,10 +757,10 @@ export default {
                 },
                 
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#d7310e' } ]
                 },
                 {
-                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#01021c', bold: true, alignment: 'center', margin: 5}]
+                    columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#d7310e', bold: true, alignment: 'center', margin: 5}]
                 },
                 {
                     columns: [
@@ -669,7 +808,7 @@ export default {
                     }
                 },
                 {
-                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
+                    canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#d7310e' } ]
                 },
                 {
                     columns: [
@@ -744,10 +883,10 @@ export default {
                     },
                     
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#d7310e' } ]
                     },
                     {
-                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#01021c', bold: true, alignment: 'center', margin: 5}]
+                        columns: [{width: '100%', text: `INVOICE #${inv.invno}`,color: '#d7310e', bold: true, alignment: 'center', margin: 5}]
                     },
                     {
                         columns: [
@@ -774,7 +913,7 @@ export default {
                         ]
                     },
                     {
-                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#01021c' } ]
+                        canvas: [ { type: 'line', x1: 0, y1: 0, x2: 380, y2: 0, lineWidth: 2, lineColor: '#d7310e' } ]
                     },
                     ' '
                 )
@@ -802,7 +941,7 @@ export default {
                 styles: {
                     table: {
                         fontSize: 7,
-                        hLineColor: '#01021c'
+                        hLineColor: '#d7310e'
                     },
                     tableStyle: {
                         margin: 0,
@@ -846,6 +985,7 @@ export default {
                 qt: this.qt,
                 rate: this.rate,
                 amount: this.amount,
+                med_included: this.$store.getters.loadedService(this.sid).med_included
             }
             if(this.itemValidate) {
                 this.items.push(item)
@@ -876,6 +1016,7 @@ export default {
                 qt: this.qt,
                 rate: this.rate,
                 amount: this.amount,
+                med_included: this.$store.getters.loadedService(this.sid).med_included
             }
             if(this.itemValidate) {
                 this.items.push(item)
@@ -924,8 +1065,12 @@ export default {
             ])
             if(data.length > 0) {
                 this.printInvoice(data[0])
+                if(this.pitems.length) {
+                    this.savePInv()
+                } else {
                 this.clear()
                 this.$store.dispatch('createAlert',{type: 'success', message: 'Invoice created'})
+                }
             }
             if(error) {
                 this.$store.dispatch('createAlert',{type: 'error', message: error.message})
@@ -1039,10 +1184,20 @@ export default {
             this.itemEditing = false
             this.itemIdex = null
             this.selectedInv = {}
+            this.dosage = null
+            this.presDialog = false
+            this.pitems = []
         }
     },
 
     computed: {
+        medIncluded() {
+            return this.items.some((item) => item.med_included)
+        },
+
+        meds() {
+            return this.$store.getters.loadedMeds
+        },
         alert () {
             return this.$store.getters.loadedAlert
         },

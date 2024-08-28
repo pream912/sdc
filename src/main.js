@@ -22,6 +22,7 @@ new Vue({
           store.commit('SET_IS_ADMIN', user.user_metadata.isAdmin)
           store.dispatch('getServices')
           store.dispatch('getCustomers')
+          store.dispatch('getMeds')
           store.dispatch('getInvoices')
           store.dispatch('getUsers')
           store.dispatch('getFooter')

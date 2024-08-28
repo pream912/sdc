@@ -15,7 +15,8 @@ export default new Vuex.Store({
         invoices: [],
         allinvoices: [],
         users: [],
-        footer: null
+        footer: null,
+        meds: []
     },
 
     getters: {
@@ -30,6 +31,16 @@ export default new Vuex.Store({
         },
         loadedAlert (state) {
             return state.alert
+        },
+        loadedMeds (state) {
+            return state.meds
+        },
+        loadedMed (state) {
+            return (medId) => {
+                return state.meds.find((med) => {
+                    return med.id === medId
+                })
+            }
         },
         loadedCustomers (state) {
             return state.customers
@@ -103,12 +114,25 @@ export default new Vuex.Store({
         SET_FOOTER (state, payload) {
             state.footer = payload
         },
+        SET_MEDS (state, payload) {
+            state.meds = payload
+        },
     },
     actions: {
         async getCustomers ({commit, dispatch}) {
             const { data, error } = await supabase.from('customers').select('*')
             if(data) {
                 commit('SET_CUSTOMERS', data)
+            }
+            if(error) {
+                dispatch('createAlert',{type: 'error', message: error.message})
+            }
+        },
+
+        async getMeds ({commit, dispatch}) {
+            const { data, error } = await supabase.from('meds').select('*')
+            if(data) {
+                commit('SET_MEDS', data)
             }
             if(error) {
                 dispatch('createAlert',{type: 'error', message: error.message})
