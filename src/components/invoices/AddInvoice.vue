@@ -512,7 +512,7 @@ export default {
                 amount: ta,
                 createdby: this.user.id,
                 payments: payment,
-                discount: this.discount,
+                discount: 0,
                 cus_gst: null,
                 items: this.pitems,
             }
