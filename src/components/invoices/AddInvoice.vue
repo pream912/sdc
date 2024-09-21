@@ -504,12 +504,12 @@ export default {
             const payment = [{
                 date: new Date(this.idate).getTime(),
                 mop: this.mop,
-                ramount: ta
+                ramount:  Math.round(+ta)
             }]
             const inv = {
                 cid: this.cid,
                 idate: new Date(this.idate).getTime(),
-                amount: ta,
+                amount:  Math.round(+ta),
                 createdby: this.user.id,
                 payments: payment,
                 discount: 0,
