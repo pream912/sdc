@@ -159,7 +159,7 @@ export default {
             let footer = {
                 message: this.fmessage
             }
-            supabase.from('footer').update(footer).eq('id', 1)
+            supabase.from('p_footer').update(footer).eq('id', 1)
             .then(() => {
                 this.footerDialog = false
                 this.$store.dispatch('getFooter')

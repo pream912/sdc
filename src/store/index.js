@@ -140,7 +140,7 @@ export default new Vuex.Store({
         },
 
         async getFooter ({commit, dispatch}) {
-            const { data, error } = await supabase.from('footer').select('*')
+            const { data, error } = await supabase.from('p_footer').select('*')
             if(data) {
                 commit('SET_FOOTER', data[0].message)
             }
